@@ -19,11 +19,9 @@
 // - Chat mentions (with sound)
 // - Ladder Switch
 // - Chat switch
-
-// Todo Features:
 // - Time to next multi
 // - Time to next bias
-// - Top vinegar loss (on ladder 1)
+// - Top vinegar loss
 // - Follow person
 
 
