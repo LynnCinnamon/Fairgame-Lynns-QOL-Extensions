@@ -247,6 +247,22 @@ const sleep = timeout => {
         }
         updateChat();
     };
+
+    window.mention = function(name)
+    {
+        name = name.text
+        var messageBox = document.getElementById("messageInput");
+        if(messageBox.value.length > 0)
+        {
+            messageBox.value = messageBox.value + " @" + name + " ";
+        }
+        else
+        {
+            messageBox.value = "@" + name + " ";
+        }
+        messageBox.focus();
+    }
+
     let oldUpdateChat = window.updateChat;
     window.updateChat = function () {
 
@@ -273,6 +289,12 @@ const sleep = timeout => {
                     !$("#highlightMentions").is(":checked")) {
                     chatData.messages[i].message = chatData.messages[i].message1;
                     chatData.messages[i].highlighted = false;
+                }
+
+                //check if the username has an onclick event
+                if (!chatData.messages[i].username.startsWith("<a onclick='mention(this)'>")) {
+                    //if it doesn't, add one
+                    chatData.messages[i].username = "<a onclick='mention(this)'>" + chatData.messages[i].username + "</a>";
                 }
             }
         }
