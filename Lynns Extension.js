@@ -19,25 +19,14 @@
 // - Chat mentions (with sound)
 // - Ladder Switch
 // - Chat switch
-
-// Todo Features:
 // - Time to next multi
 // - Time to next bias
-// - Top vinegar loss (on ladder 1)
+// - Top vinegar loss
 // - Follow person
 
 
 if (typeof unsafeWindow !== 'undefined') {
     window = unsafeWindow;
-}
-
-window.subscribeToDomNode = function(id, callback) {
-    let input = $("#"+id)[0];
-    if (input) {
-        input.addEventListener("change", callback);
-    } else {
-        console.log(`Id ${id} was not found subscribing to change events`);
-    }
 }
 
 const sleep = timeout => {
@@ -70,8 +59,16 @@ const sleep = timeout => {
     addOption(CheckboxOption("Scrollable Chad", "scrollableChad"));
     addOption(TextInputOption("Saved Chad Message Count", "chadMessageCount", "# of chad messages, max 9999", "4"))
     chadMessageCount.value = 50;
-    addOption(CheckboxOption("Mention Sound", "mentionSounds"));
     addOption(CheckboxOption("Highlight Mentions", "highlightMentions", true));
+    addOption(CheckboxOption("Mention Sound", "mentionSounds"));
+    addOption(SliderOption("Mention Volume", "mentionVolume", 1, 100, 1, 100));
+    subscribeToDomNode("mentionVolume", ()=>{
+        mentionSound.volume = parseInt(mentionVolume.value)/100;
+    });
+    addOption(ButtonOption("Test Mention Sound", "testMentionSound"));
+    $(testMentionSound).click(()=>{
+        mentionSound.play();
+    });
 
     addNewSection("Lynn's Ladder tweaks");
     addOption(CheckboxOption("Use Lynns Ladder Code", "useLynnsLadderCode"));
@@ -90,6 +87,16 @@ const sleep = timeout => {
         $("#scrollableChad").prop("checked", lynnsQOLData.scrollableChad);
         $("#chadMessageCount").val(lynnsQOLData.chadMessageCount);
         $("#useLynnsLadderCode").prop("checked", lynnsQOLData.useLynnsLadderCode);
+
+        $("#rowsInput").val(lynnsQOLData.rowsInput);
+        $("#scrollableLadder").prop("checked", lynnsQOLData.scrollableLadder);
+        $("#expandedLadder").prop("checked", lynnsQOLData.expandedLadder);
+        $("#scrollablePage").prop("checked", lynnsQOLData.scrollablePage);
+        $("#promotePoints").prop("checked", lynnsQOLData.promotePoints);
+
+        expandLadder(lynnsQOLData.scrollableLadder);
+        qolOptions.expandedLadder.size = parseInt(lynnsQOLData.rowsInput);
+        clientData.ladderPadding = qolOptions.expandedLadder.size / 2;
     }
 
     function saveData() {
@@ -102,7 +109,14 @@ const sleep = timeout => {
                 invertChad: $("#invertChad").prop("checked"),
                 scrollableChad: $("#scrollableChad").prop("checked"),
                 chadMessageCount: $("#chadMessageCount").val(),
-                useLynnsLadderCode: $("#useLynnsLadderCode").prop("checked")
+                useLynnsLadderCode: $("#useLynnsLadderCode").prop("checked"),
+
+
+                rowsInput: $("#rowsInput").val(),
+                scrollableLadder: $("#scrollableLadder").prop("checked"),
+                expandedLadder: $("#expandedLadder").prop("checked"),
+                scrollablePage: $("#scrollablePage").prop("checked"),
+                promotePoints: $("#promotePoints").prop("checked"),
             };
             localStorage.setItem("lynnsQOLData", JSON.stringify(saveData));
         }
@@ -117,6 +131,15 @@ const sleep = timeout => {
     subscribeToDomNode("chadMessageCount", saveData);
     subscribeToDomNode("chadMessageCount", window.updateChad);
     subscribeToDomNode("useLynnsLadderCode", saveData);
+
+
+    //Subscribing to the base scripts settings
+    subscribeToDomNode("rowsInput", saveData);
+    subscribeToDomNode("scrollableLadder", saveData);
+    subscribeToDomNode("expandedLadder", saveData);
+    subscribeToDomNode("scrollablePage", saveData);
+    subscribeToDomNode("promotePoints", saveData);
+
 
 
 
