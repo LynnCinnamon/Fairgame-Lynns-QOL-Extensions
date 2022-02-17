@@ -63,10 +63,10 @@ const sleep = timeout => {
     addOption(CheckboxOption("Mention Sound", "mentionSounds"));
     addOption(SliderOption("Mention Volume", "mentionVolume", 1, 100, 1, 100));
     subscribeToDomNode("mentionVolume", ()=>{
-        mentionSound.volume = mentionVolume.value;
+        mentionSound.volume = parseInt(mentionVolume.value)/100;
     });
     addOption(ButtonOption("Test Mention Sound", "testMentionSound"));
-    subscribeToDomNode("testMentionSound", ()=>{
+    $(testMentionSound).click(()=>{
         mentionSound.play();
     });
 
