@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Lynns Fair Game QoL Extension
 // @namespace    https://fair.kaliburg.de/#
-// @version      0.1.3
+// @version      0.1.4
 // @description  Fair Game QOL Enhancements
 // @author       Lynn
 // @match        https://fair.kaliburg.de/
