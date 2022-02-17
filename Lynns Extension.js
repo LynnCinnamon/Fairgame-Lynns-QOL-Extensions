@@ -367,12 +367,14 @@ const sleep = timeout => {
 
         //insert new value display for time to next multi
         newValue(controls, "Time to next multi: ", "timeToNextMulti");
+        newValue(controls, "      Time 'till even: ", "timeToMultiEven");
 
         //next line
         newLine(controls);
 
         //insert new value display for time to next bias
         newValue(controls, "Time to next bias: ", "timeToNextBias");
+        newValue(controls, "      Time 'till even: ", "timeToBiasEven");
         newLine(controls);
         newValue(controls, "Top vinegar loss: ", "topVinegarLoss");
         newLine(controls);
@@ -541,10 +543,44 @@ const sleep = timeout => {
             var ticksToNextMultiString = secondsToHms(ticksToNextMulti);
             var ticksToNextBiasString = secondsToHms(ticksToNextBias);
 
+            //Calculating the breaking even point
+            let biasCost = getUpgradeCost(ladderData.yourRanker.bias + 1);
+            let multiCost = getUpgradeCost(ladderData.yourRanker.multiplier + 1);
+            const myAcc = getAcc(ladderData.yourRanker);
+            let nextMultiTime = ladderData.yourRanker.power.lessThan(multiCost) ? (multiCost-ladderData.yourRanker.power)/myAcc : 0;
+
+            let nextMultiPayback = 0;
+            if (nextMultiTime > 0) {
+                // If you don't have the required power calculate cost with future values
+                const targetPoints = ladderData.yourRanker.points.add(ladderData.yourRanker.power.times(nextMultiTime)).add(myAcc * myAcc * nextMultiTime / 2);
+                nextMultiPayback = solveQuadratic((ladderData.yourRanker.rank - 1 + ladderData.yourRanker.bias)/2, -multiCost, -targetPoints);
+            } else {
+                nextMultiPayback = solveQuadratic((ladderData.yourRanker.rank - 1 + ladderData.yourRanker.bias)/2, -ladderData.yourRanker.power, -ladderData.yourRanker.points);
+            }
+            nextMultiTime = secondsToHms(nextMultiTime);
+            nextMultiPayback = secondsToHms(nextMultiPayback);
+
+            let nextBiasTime = ladderData.yourRanker.points.lessThan(biasCost) ? solveQuadratic(myAcc/2, ladderData.yourRanker.power, -biasCost) : 0;
+            // For bias payback you will need to solve accel_diff / 2 * t^2 - points = 0
+            let nextBiasPayback = 0;
+            if (nextBiasTime > 0) {
+                // If you don't have the required points calculate cost with future value
+                nextBiasPayback = solveQuadratic(ladderData.yourRanker.multiplier/2, 0, -biasCost);
+            } else {
+                nextBiasPayback = solveQuadratic(ladderData.yourRanker.multiplier/2, 0, -ladderData.yourRanker.points);
+            }
+            nextBiasTime = secondsToHms(nextBiasTime);
+            nextBiasPayback = secondsToHms(nextBiasPayback);
+
+
+
             if(window.controlsInserted)
             {
                 $("#timeToNextMulti")[0].innerHTML = ticksToNextMultiString;
+                $("#timeToMultiEven")[0].innerHTML = nextMultiPayback;
+
                 $("#timeToNextBias")[0].innerHTML = ticksToNextBiasString;
+                $("#timeToBiasEven")[0].innerHTML = nextBiasPayback;
 
                 //color the text
                 {
