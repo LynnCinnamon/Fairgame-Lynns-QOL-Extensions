@@ -79,6 +79,14 @@ const sleep = timeout => {
         $("#scrollableChad").prop("checked", lynnsQOLData.scrollableChad);
         $("#chadMessageCount").val(lynnsQOLData.chadMessageCount);
         $("#useLynnsLadderCode").prop("checked", lynnsQOLData.useLynnsLadderCode);
+
+        $("#rowsInput").val(lynnsQOLData.rows);
+        $("#scrollableLadder").prop("checked", lynnsQOLData.scrollableLadder);
+        $("#expandedLadder").prop("checked", lynnsQOLData.expandedLadder);
+        $("#scrollablePage").prop("checked", lynnsQOLData.scrollablePage);
+        $("#promotePoints").prop("checked", lynnsQOLData.promotePoints);
+
+        expandLadder(lynnsQOLData.scrollableLadder);
     }
 
     function saveData() {
@@ -91,7 +99,14 @@ const sleep = timeout => {
                 invertChad: $("#invertChad").prop("checked"),
                 scrollableChad: $("#scrollableChad").prop("checked"),
                 chadMessageCount: $("#chadMessageCount").val(),
-                useLynnsLadderCode: $("#useLynnsLadderCode").prop("checked")
+                useLynnsLadderCode: $("#useLynnsLadderCode").prop("checked"),
+
+
+                rowsInput: $("#rowsInput").val(),
+                scrollableLadder: $("#scrollableLadder").prop("checked"),
+                expandedLadder: $("#expandedLadder").prop("checked"),
+                scrollablePage: $("#scrollablePage").prop("checked"),
+                promotePoints: $("#promotePoints").prop("checked"),
             };
             localStorage.setItem("lynnsQOLData", JSON.stringify(saveData));
         }
@@ -106,6 +121,15 @@ const sleep = timeout => {
     subscribeToDomNode("chadMessageCount", saveData);
     subscribeToDomNode("chadMessageCount", window.updateChad);
     subscribeToDomNode("useLynnsLadderCode", saveData);
+
+
+    //Subscribing to the base scripts settings
+    subscribeToDomNode("rowsInput", saveData);
+    subscribeToDomNode("scrollableLadder", saveData);
+    subscribeToDomNode("expandedLadder", saveData);
+    subscribeToDomNode("scrollablePage", saveData);
+    subscribeToDomNode("promotePoints", saveData);
+
 
 
 
