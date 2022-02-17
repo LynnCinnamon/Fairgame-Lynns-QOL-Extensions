@@ -556,7 +556,7 @@ const sleep = timeout => {
         }
         window.topRankerTickCount++;
 
-        if(ladderData.currentLadder.number == 1)
+        if(ladderData.currentLadder.number == 1 || true /** TODO: Remove the true in next round */)
         {
 
             let vinLoss = Math.pow(vinDecay, window.topRankerTickCount);
