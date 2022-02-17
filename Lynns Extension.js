@@ -29,15 +29,6 @@ if (typeof unsafeWindow !== 'undefined') {
     window = unsafeWindow;
 }
 
-window.subscribeToDomNode = function(id, callback) {
-    let input = $("#"+id)[0];
-    if (input) {
-        input.addEventListener("change", callback);
-    } else {
-        console.log(`Id ${id} was not found subscribing to change events`);
-    }
-}
-
 const sleep = timeout => {
     return new Promise(resolve => {
         setTimeout(resolve, timeout);
