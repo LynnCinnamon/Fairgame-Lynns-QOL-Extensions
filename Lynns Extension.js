@@ -59,8 +59,16 @@ const sleep = timeout => {
     addOption(CheckboxOption("Scrollable Chad", "scrollableChad"));
     addOption(TextInputOption("Saved Chad Message Count", "chadMessageCount", "# of chad messages, max 9999", "4"))
     chadMessageCount.value = 50;
-    addOption(CheckboxOption("Mention Sound", "mentionSounds"));
     addOption(CheckboxOption("Highlight Mentions", "highlightMentions", true));
+    addOption(CheckboxOption("Mention Sound", "mentionSounds"));
+    addOption(SliderOption("Mention Volume", "mentionVolume", 1, 100, 1, 100));
+    subscribeToDomNode("mentionVolume", ()=>{
+        mentionSound.volume = mentionVolume.value;
+    });
+    addOption(ButtonOption("Test Mention Sound", "testMentionSound"));
+    subscribeToDomNode("testMentionSound", ()=>{
+        mentionSound.play();
+    });
 
     addNewSection("Lynn's Ladder tweaks");
     addOption(CheckboxOption("Use Lynns Ladder Code", "useLynnsLadderCode"));
