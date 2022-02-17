@@ -80,13 +80,15 @@ const sleep = timeout => {
         $("#chadMessageCount").val(lynnsQOLData.chadMessageCount);
         $("#useLynnsLadderCode").prop("checked", lynnsQOLData.useLynnsLadderCode);
 
-        $("#rowsInput").val(lynnsQOLData.rows);
+        $("#rowsInput").val(lynnsQOLData.rowsInput);
         $("#scrollableLadder").prop("checked", lynnsQOLData.scrollableLadder);
         $("#expandedLadder").prop("checked", lynnsQOLData.expandedLadder);
         $("#scrollablePage").prop("checked", lynnsQOLData.scrollablePage);
         $("#promotePoints").prop("checked", lynnsQOLData.promotePoints);
 
         expandLadder(lynnsQOLData.scrollableLadder);
+        qolOptions.expandedLadder.size = parseInt(lynnsQOLData.rowsInput);
+        clientData.ladderPadding = qolOptions.expandedLadder.size / 2;
     }
 
     function saveData() {
