@@ -292,7 +292,10 @@ const sleep = timeout => {
         var chatContainer = document.getElementsByClassName("chat-container")[0];
         if(chatContainer)
         {
-            chatContainer.scrollTop = chatContainer.scrollHeight + 1000;
+            if($("#invertChad").prop("checked"))
+                chatContainer.scrollTop = chatContainer.scrollHeight + 1000;
+            else
+                chatContainer.scrollTop = 0;
         }
     }
 
