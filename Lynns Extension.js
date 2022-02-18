@@ -294,7 +294,7 @@ const sleep = timeout => {
         if (ladderData.yourRanker.username != "") {
 
             for (var i = 0; i < chatData.messages.length; i++) {
-                if (chatData.messages[i].message.includes("@" + ladderData.yourRanker.username) &&
+                if (chatData.messages[i].message.includes("@" + ladderData.yourRanker.username + ' #' + ladderData.yourRanker.accountId) &&
                     $("#highlightMentions").is(":checked")) {
                     //if they do, and this message was not touched yet, highlight the mention
                     if (chatData.messages[i].highlighted == false || chatData.messages[i].highlighted == undefined) {
@@ -303,7 +303,7 @@ const sleep = timeout => {
                         chatData.messages[i].message1 = chatData.messages[i].message;
 
                         //replace all occurences of the mention with a highlighted version
-                        chatData.messages[i].message = chatData.messages[i].message1.replaceAll("@" + ladderData.yourRanker.username, "<a style=\"color: red\">@" + ladderData.yourRanker.username + "</a>");
+                        chatData.messages[i].message = chatData.messages[i].message1.replaceAll("@" + ladderData.yourRanker.username + ' #' + ladderData.yourRanker.accountId, "<a style=\"color: red\">@" + ladderData.yourRanker.username + ' #' + ladderData.yourRanker.accountId + "</a>");
                         chatData.messages[i].highlighted = true;
                     }
                 }
@@ -317,7 +317,7 @@ const sleep = timeout => {
                 //check if the username has an onclick event
                 if (!chatData.messages[i].username.startsWith("<a onclick='mention(this)'>")) {
                     //if it doesn't, add one
-                    chatData.messages[i].username = "<a onclick='mention(this)'>" + chatData.messages[i].username + "</a>";
+                    chatData.messages[i].username = `<a onclick='mention(this)'>${chatData.messages[i].username} #${chatData.messages[i].accountId}</a>`;
                 }
             }
         }
