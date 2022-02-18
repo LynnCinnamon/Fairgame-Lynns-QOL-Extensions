@@ -266,7 +266,9 @@ const sleep = timeout => {
                 }
             }
             chatData.messages.unshift(message);
-            while (chatData.messages.length > chadMessageCount.value) chatData.messages.pop(); // <-- Change limit here
+            var maxMessages = $("#chadMessageCount").val();
+            if (!maxMessages > 10) maxMessages = 10;
+            while (chatData.messages.length > maxMessages) chatData.messages.pop(); // <-- Change limit here
         }
         updateChat();
     };
