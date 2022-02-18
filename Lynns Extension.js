@@ -307,6 +307,20 @@ const sleep = timeout => {
                         chatData.messages[i].highlighted = true;
                     }
                 }
+                //if we have a #L<number> mention, create a link to the ladder
+                //number can be any number
+                if (chatData.messages[i].message.includes("#L") && !chatData.messages[i].message.includes("changeLadder")) {
+                    var number = chatData.messages[i].message.split("#")[1].split(" ")[0].substring(1);
+                    chatData.messages[i].message = chatData.messages[i].message.replaceAll("#L" + number, "<a style=\"cursor: pointer; color: blue\" onclick='changeLadder(" + number + ")'>#L" + number + "</a>");
+                }
+
+                //if we have a #C<number> mention, create a link to the chat
+                //number can be any number
+                if (chatData.messages[i].message.includes("#C") && !chatData.messages[i].message.includes("changeChatRoom")) {
+                    var number = chatData.messages[i].message.split("#")[1].split(" ")[0].substring(1);
+                    chatData.messages[i].message = chatData.messages[i].message.replaceAll("#C" + number, "<a style=\"cursor: pointer; color: blue\" onclick='changeChatRoom(" + number + ")'>#C" + number + "</a>");
+                }
+
                 //if the message was already highlighted, but the user no longer wishes to see it highlighted, then unhighlight it
                 else if (chatData.messages[i].highlighted == true &&
                     !$("#highlightMentions").is(":checked")) {
@@ -315,9 +329,9 @@ const sleep = timeout => {
                 }
 
                 //check if the username has an onclick event
-                if (!chatData.messages[i].username.startsWith("<a onclick='mention(this)'>")) {
+                if (!chatData.messages[i].username.startsWith("<a style=\"cursor: pointer;\" onclick='mention(this)'>")) {
                     //if it doesn't, add one
-                    chatData.messages[i].username = `<a onclick='mention(this)'>${chatData.messages[i].username} #${chatData.messages[i].accountId}</a>`;
+                    chatData.messages[i].username = `<a style=\"cursor: pointer;\" onclick='mention(this)'>${chatData.messages[i].username} #${chatData.messages[i].accountId}</a>`;
                 }
             }
         }
