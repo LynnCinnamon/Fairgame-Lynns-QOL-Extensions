@@ -328,6 +328,22 @@ const sleep = timeout => {
         }
     }
 
+    //TODO: Check if this is still needed
+    window.handlePromote = function(event) {
+        ladderData.rankers.forEach(ranker => {
+            if (event.accountId === ranker.accountId) {
+                ranker.growing = false;
+            }
+        });
+
+        if (event.accountId === identityData.accountId) {
+            let newLadderNum = ladderData.currentLadder.number + 1;
+            identityData.highestCurrentLadder = newLadderNum;
+            changeLadder(newLadderNum);
+            changeChatRoom(newLadderNum);
+        }
+    }
+
     window.changeChatRoom = function(ladderNum) {
         if(ladderNum <= identityData.highestCurrentLadder || window.unrestrictedChatNavigation)
         {
