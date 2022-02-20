@@ -168,18 +168,19 @@ const sleep = timeout => {
         }
     };
 
+    window.unrestrictedLadderNavigation = false;
     window.displayLadderNavigation = function () {
 
         if(document.getElementById("prevLadder"))
         {
             document.getElementById("prevLadder").disabled = ladderData.currentLadder.number <= 1;
-            document.getElementById("nextLadder").disabled = ladderData.currentLadder.number >= identityData.highestCurrentLadder;
+            document.getElementById("nextLadder").disabled = ladderData.currentLadder.number >= identityData.highestCurrentLadder && !window.unrestrictedLadderNavigation;
             document.getElementById("ladderNum").innerHTML = ` Ladder # ${ladderData.currentLadder.number} `
             return;
         }
 
         const nextLadder = () => {
-            if (ladderData.currentLadder.number + 1 <= identityData.highestCurrentLadder) {
+            if (ladderData.currentLadder.number + 1 <= identityData.highestCurrentLadder || window.unrestrictedLadderNavigation) {
                 changeLadder(ladderData.currentLadder.number + 1);
                 setTimeout(() => {
                     displayLadderNavigation();
@@ -221,17 +222,19 @@ const sleep = timeout => {
         document.head.appendChild(div);
         div.style.display = "none";
     }
+
+    window.unrestrictedChatNavigation = false;
     window.displayChatNavigation = function () {
 
         if(document.getElementById("prevChad"))
         {
             document.getElementById("prevChad").disabled = chatData.currentChatNumber <= 1;
-            document.getElementById("nextChad").disabled = chatData.currentChatNumber >= identityData.highestCurrentLadder;
+            document.getElementById("nextChad").disabled = chatData.currentChatNumber >= identityData.highestCurrentLadder && !window.unrestrictedChatNavigation;
             return;
         }
 
         const nextChad = () => {
-            if (chatData.currentChatNumber + 1 <= identityData.highestCurrentLadder) {
+            if (chatData.currentChatNumber + 1 <= identityData.highestCurrentLadder || window.unrestrictedChatNavigation) {
                 document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + (chatData.currentChatNumber + 1);
                 changeChatRoom(chatData.currentChatNumber + 1);
                 updateChat();
