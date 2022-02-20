@@ -273,6 +273,17 @@ const sleep = timeout => {
         updateChat();
     };
 
+    let oldShowButtons = showButtons;
+    window.showButtons = function() {
+        oldShowButtons();
+        if(!ladderData.rankers[0].growing)
+        {
+            promoteButton.hide();
+            ladderNumber.show();
+            assholeButton.hide();
+        }
+    };
+
     window.mention = function(name)
     {
         name = name.text
