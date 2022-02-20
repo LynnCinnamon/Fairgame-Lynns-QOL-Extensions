@@ -855,6 +855,12 @@ const sleep = timeout => {
             e.preventDefault();
             return;
         }
+        
+        //if the key is escape
+        if(e.keyCode == 27)
+        {
+            window.dropdownElementSelected = -1
+        }
 
         //remove any existing dropdown
         var dropdown = document.getElementById("mentionDropdown");
