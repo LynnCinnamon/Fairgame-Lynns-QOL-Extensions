@@ -72,6 +72,7 @@ const sleep = timeout => {
 
     addNewSection("Lynn's Ladder tweaks");
     addOption(CheckboxOption("Use Lynns Ladder Code", "useLynnsLadderCode"));
+    addOption(CheckboxOption("Show User ID", "showUserIDInLadder"));
 
     addNewSection("Lynn's Data tweaks");
     addOption(CheckboxOption("Save Data", "saveData"));
@@ -87,6 +88,7 @@ const sleep = timeout => {
         $("#scrollableChad").prop("checked", lynnsQOLData.scrollableChad);
         $("#chadMessageCount").val(lynnsQOLData.chadMessageCount);
         $("#useLynnsLadderCode").prop("checked", lynnsQOLData.useLynnsLadderCode);
+        $("#showUserIDInLadder").prop("checked", lynnsQOLData.showUserIDInLadder);
 
         $("#rowsInput").val(lynnsQOLData.rowsInput);
         $("#scrollableLadder").prop("checked", lynnsQOLData.scrollableLadder);
@@ -110,6 +112,7 @@ const sleep = timeout => {
                 scrollableChad: $("#scrollableChad").prop("checked"),
                 chadMessageCount: $("#chadMessageCount").val(),
                 useLynnsLadderCode: $("#useLynnsLadderCode").prop("checked"),
+                showUserIDInLadder: $("#showUserIDInLadder").prop("checked"),
 
 
                 rowsInput: $("#rowsInput").val(),
@@ -131,6 +134,7 @@ const sleep = timeout => {
     subscribeToDomNode("chadMessageCount", saveData);
     subscribeToDomNode("chadMessageCount", window.updateChad);
     subscribeToDomNode("useLynnsLadderCode", saveData);
+    subscribeToDomNode("showUserIDInLadder", saveData);
 
 
     //Subscribing to the base scripts settings
@@ -564,7 +568,11 @@ const sleep = timeout => {
         }
         row.insertCell(0).innerHTML = rank + " " + assholeTag;
         row.insertCell(1).innerHTML = `[+${ranker.bias.toString().padStart(2,"0")} x${ranker.multiplier.toString().padStart(2,"0")}]`;
-        row.insertCell(2).innerHTML = `<a onclick="window.idToFollow = ${ranker.accountId}">${ranker.username}</a>`;
+        var userIDSuper = `<sup style=" font-size: 0.95em ">#${ranker.accountId}</sup>`;
+        if(!$("#showUserIDInLadder")[0].checked) {
+            userIDSuper = "";
+        }
+        row.insertCell(2).innerHTML = `<a onclick="window.idToFollow = ${ranker.accountId}">${ranker.username}${userIDSuper}</a>`;
         row.cells[2].style.overflow = "hidden";
         row.insertCell(3).innerHTML = `${multiPrice} ${numberFormatter.format(ranker.power)} ${ranker.growing ? ranker.rank != 1 ? "(+" + numberFormatter.format((ranker.rank - 1 + ranker.bias) * ranker.multiplier) + ")" : "" : "(Promoted)"}`;
         row.cells[3].classList.add('text-end');
