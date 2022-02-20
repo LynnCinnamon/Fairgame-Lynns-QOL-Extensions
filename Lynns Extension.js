@@ -230,7 +230,7 @@ const sleep = timeout => {
         {
             document.getElementById("prevChad").disabled = chatData.currentChatNumber <= 1;
             document.getElementById("nextChad").disabled = chatData.currentChatNumber >= identityData.highestCurrentLadder && !window.unrestrictedChatNavigation;
-            document.getElementById("chatNum").innerHTML = ` Chat # ${chatData.currentChatNumber} `;
+            document.getElementById("chatNum").innerHTML = ` Chad # ${chatData.currentChatNumber} `;
             return;
         }
 
@@ -317,6 +317,42 @@ const sleep = timeout => {
             assholeButton.hide();
         }
     };
+
+    window.changeLadder = function(ladderNum) {
+        if(ladderNum <= identityData.highestCurrentLadder || window.unrestrictedLadderNavigation)
+        {
+            if (ladderSubscription) ladderSubscription.unsubscribe();
+            ladderSubscription = stompClient.subscribe('/topic/ladder/' + ladderNum,
+            (message) => handleLadderUpdates(JSON.parse(message.body)), {uuid: getCookie("_uuid")});
+            initLadder(ladderNum);
+        }
+    }
+
+    //TODO: Check if this is still needed
+    window.handlePromote = function(event) {
+        ladderData.rankers.forEach(ranker => {
+            if (event.accountId === ranker.accountId) {
+                ranker.growing = false;
+            }
+        });
+
+        if (event.accountId === identityData.accountId) {
+            let newLadderNum = ladderData.currentLadder.number + 1;
+            identityData.highestCurrentLadder = newLadderNum;
+            changeLadder(newLadderNum);
+            changeChatRoom(newLadderNum);
+        }
+    }
+
+    window.changeChatRoom = function(ladderNum) {
+        if(ladderNum <= identityData.highestCurrentLadder || window.unrestrictedChatNavigation)
+        {
+            chatSubscription.unsubscribe();
+            chatSubscription = stompClient.subscribe('/topic/chat/' + ladderNum,
+                (message) => handleChatUpdates(JSON.parse(message.body)), {uuid: getCookie("_uuid")});
+            initChat(ladderNum);
+        }
+    }
 
     window.mention = function(name)
     {
