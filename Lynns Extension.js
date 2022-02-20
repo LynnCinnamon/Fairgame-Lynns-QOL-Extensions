@@ -331,7 +331,7 @@ const sleep = timeout => {
                 }
 
                 //check if the username has an onclick event
-                if (!chatData.messages[i].username.startsWith("<a style=\"cursor: pointer;\" onclick='mention(this)'>")) {
+                if (!chatData.messages[i].username.includes("<a style=\"cursor: pointer;\" onclick='mention(this)'>")) {
                     //if it doesn't, add one
                     chatData.messages[i].username = `<a style=\"cursor: pointer;\" onclick='mention(this)'>${chatData.messages[i].username} #${chatData.messages[i].accountId}</a>`;
                 }
