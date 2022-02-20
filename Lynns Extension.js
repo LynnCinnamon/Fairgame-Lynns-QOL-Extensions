@@ -290,7 +290,7 @@ const sleep = timeout => {
     window.handleChatUpdates = function (message) {
         if (message) {
             if (ladderData.yourRanker.username != "") {
-                if (message.message.includes("@" + ladderData.yourRanker.username) &&
+                if (message.message.includes("@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId) &&
                     $("#mentionSounds").is(":checked")) {
                     mentionSound.play();
                 }
@@ -341,7 +341,7 @@ const sleep = timeout => {
         if (ladderData.yourRanker.username != "") {
 
             for (var i = 0; i < chatData.messages.length; i++) {
-                if (chatData.messages[i].message.includes("@" + ladderData.yourRanker.username + ' #' + ladderData.yourRanker.accountId) &&
+                if (chatData.messages[i].message.includes("@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId) &&
                     $("#highlightMentions").is(":checked")) {
                     //if they do, and this message was not touched yet, highlight the mention
                     if (chatData.messages[i].highlighted == false || chatData.messages[i].highlighted == undefined) {
@@ -350,7 +350,7 @@ const sleep = timeout => {
                         chatData.messages[i].message1 = chatData.messages[i].message;
 
                         //replace all occurences of the mention with a highlighted version
-                        chatData.messages[i].message = chatData.messages[i].message1.replaceAll("@" + ladderData.yourRanker.username + ' #' + ladderData.yourRanker.accountId, "<a style=\"color: red\">@" + ladderData.yourRanker.username + ' #' + ladderData.yourRanker.accountId + "</a>");
+                        chatData.messages[i].message = chatData.messages[i].message1.replaceAll("@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId, "<a style=\"color: red\">@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId + "</a>");
                         chatData.messages[i].highlighted = true;
                     }
                 }
