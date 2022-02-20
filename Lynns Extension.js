@@ -230,6 +230,7 @@ const sleep = timeout => {
         {
             document.getElementById("prevChad").disabled = chatData.currentChatNumber <= 1;
             document.getElementById("nextChad").disabled = chatData.currentChatNumber >= identityData.highestCurrentLadder && !window.unrestrictedChatNavigation;
+            document.getElementById("chatNum").innerHTML = ` Chat # ${chatData.currentChatNumber} `;
             return;
         }
 
@@ -272,6 +273,7 @@ const sleep = timeout => {
         const chatNum = document.createElement('span');
         chatNum.classList.add("chat-number");
         chatNum.innerHTML = ` Chad # ${ladderData.currentLadder.number} `;
+        chatNum.id = "chatNum";
         var container = document.createElement('div');
         var container2 = document.createElement('div');
 
