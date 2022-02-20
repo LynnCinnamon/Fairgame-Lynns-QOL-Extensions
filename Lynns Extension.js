@@ -306,7 +306,7 @@ const sleep = timeout => {
     let oldShowButtons = showButtons;
     window.showButtons = function() {
         oldShowButtons();
-        if(!ladderData.rankers[0].growing)
+        if(!ladderData.yourRanker.growing)
         {
             // Promote and Asshole Button Logic
             let promoteButton = $('#promoteButton');
