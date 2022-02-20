@@ -230,7 +230,7 @@ const sleep = timeout => {
         {
             document.getElementById("prevChad").disabled = chatData.currentChatNumber <= 1;
             document.getElementById("nextChad").disabled = chatData.currentChatNumber >= identityData.highestCurrentLadder && !window.unrestrictedChatNavigation;
-            document.getElementById("chatNum").innerHTML = ` Chat # ${chatData.currentChatNumber} `;
+            document.getElementById("chatNum").innerHTML = ` Chad # ${chatData.currentChatNumber} `;
             return;
         }
 
