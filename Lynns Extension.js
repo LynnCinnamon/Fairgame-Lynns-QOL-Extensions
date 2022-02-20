@@ -168,78 +168,103 @@ const sleep = timeout => {
         }
     };
 
-    window.maxLadderReached = ladderData.currentLadder.number;
     window.displayLadderNavigation = function () {
-        if (ladderData.currentLadder.number > window.maxLadderReached) {
-            window.maxLadderReached = ladderData.currentLadder.number;
+
+        if(document.getElementById("prevLadder"))
+        {
+            document.getElementById("prevLadder").disabled = ladderData.currentLadder.number <= 1;
+            document.getElementById("nextLadder").disabled = ladderData.currentLadder.number >= identityData.highestCurrentLadder;
+            document.getElementById("ladderNum").innerHTML = ` Ladder # ${ladderData.currentLadder.number} `
+            return;
         }
 
         const nextLadder = () => {
-            if (ladderData.currentLadder.number + 1 <= window.maxLadderReached) {
+            if (ladderData.currentLadder.number + 1 <= identityData.highestCurrentLadder) {
                 changeLadder(ladderData.currentLadder.number + 1);
+                setTimeout(() => {
+                    displayLadderNavigation();
+                }, 100);
             }
         }
         const prevLadder = () => {
             if (ladderData.currentLadder.number > 1) {
                 changeLadder(ladderData.currentLadder.number - 1);
             }
+            setTimeout(() => {
+                displayLadderNavigation();
+            }, 100);
         }
 
         const nextButton = document.createElement('button');
         nextButton.classList.add("btn", "btn-outline-secondary");
         nextButton.innerHTML = "&gt;";
+        nextButton.id = "nextLadder";
         nextButton.onclick = nextLadder;
 
         const prevButton = document.createElement('button');
         prevButton.classList.add("btn", "btn-outline-secondary");
         prevButton.innerHTML = "&lt;";
+        prevButton.id = "prevLadder";
         prevButton.onclick = prevLadder;
 
         if (ladderData.currentLadder.number <= 1) prevButton.disabled = true;
-        if (ladderData.currentLadder.number >= maxLadderReached) nextButton.disabled = true;
+        if (ladderData.currentLadder.number >= identityData.highestCurrentLadder) nextButton.disabled = true;
 
         const ladderNum = document.createElement('span');
+        ladderNum.id = "ladderNum";
         ladderNum.innerHTML = ` Ladder # ${ladderData.currentLadder.number} `;
 
         $('#ladderNumber').empty().append(prevButton).append(ladderNum).append(nextButton);
+        document.getElementById("ladderNumber").id = "ladderNumberOld";
+        var div = document.createElement('div');
+        div.id = "ladderNumber";
+        document.head.appendChild(div);
+        div.style.display = "none";
     }
     window.displayChatNavigation = function () {
-        window.currentChat = ladderData.currentLadder.number;
+
+        if(document.getElementById("prevChad"))
+        {
+            document.getElementById("prevChad").disabled = chatData.currentChatNumber <= 1;
+            document.getElementById("nextChad").disabled = chatData.currentChatNumber >= identityData.highestCurrentLadder;
+            return;
+        }
+
         const nextChad = () => {
-            if (window.currentChat + 1 <= window.maxLadderReached) {
-                window.currentChat++;
-                changeChatRoom(window.currentChat);
+            if (chatData.currentChatNumber + 1 <= identityData.highestCurrentLadder) {
+                document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + (chatData.currentChatNumber + 1);
+                changeChatRoom(chatData.currentChatNumber + 1);
                 updateChat();
-                document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + window.currentChat;
-                prevButton.disabled = window.currentChat <= 1;
-                nextButton.disabled = window.currentChat >= maxLadderReached;
             }
+            setTimeout(() => {
+            window.displayChatNavigation();
+            }, 100);
         }
         const prevChad = () => {
-            if (window.currentChat > 1) {
-                window.currentChat--;
-                changeChatRoom(window.currentChat);
+            if (chatData.currentChatNumber > 1) {
+                document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + (chatData.currentChatNumber - 1);
+                changeChatRoom(chatData.currentChatNumber - 1);
                 updateChat();
-                document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + window.currentChat;
-
-
-                prevButton.disabled = window.currentChat <= 1;
-                nextButton.disabled = window.currentChat >= maxLadderReached;
             }
+            setTimeout(() => {
+            window.displayChatNavigation();
+            }, 100);
         }
 
         const nextButton = document.createElement('button');
         nextButton.classList.add("btn", "btn-outline-secondary");
         nextButton.innerHTML = "&gt;";
+        nextButton.id = "nextChad";
         nextButton.onclick = nextChad;
 
         const prevButton = document.createElement('button');
         prevButton.classList.add("btn", "btn-outline-secondary");
         prevButton.innerHTML = "&lt;";
+        prevButton.id = "prevChad";
         prevButton.onclick = prevChad;
 
-        if (window.currentChat <= 1) prevButton.disabled = true;
-        if (window.currentChat >= maxLadderReached) nextButton.disabled = true;
+        if (chatData.currentChatNumber <= 1) prevButton.disabled = true;
+        if (chatData.currentChatNumber >= identityData.highestCurrentLadder) nextButton.disabled = true;
 
         const chatNum = document.createElement('span');
         chatNum.classList.add("chat-number");
@@ -278,6 +303,10 @@ const sleep = timeout => {
         oldShowButtons();
         if(!ladderData.rankers[0].growing)
         {
+            // Promote and Asshole Button Logic
+            let promoteButton = $('#promoteButton');
+            let assholeButton = $('#assholeButton');
+            let ladderNumber = $('#ladderNumber');
             promoteButton.hide();
             ladderNumber.show();
             assholeButton.hide();
@@ -535,11 +564,8 @@ const sleep = timeout => {
         oldUpdateLadder();
 
         displayLadderNavigation();
-        if(window.chatNavDisplayed !== "yes")
-        {
-            window.chatNavDisplayed = "yes";
-            displayChatNavigation();
-        }
+        displayChatNavigation();
+
         infoText.style.height = "70px";
 
         if(window.idToFollow == -1 && ladderData.yourRanker.accountId > 0) {
