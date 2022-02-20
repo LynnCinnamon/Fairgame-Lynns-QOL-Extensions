@@ -73,6 +73,7 @@ const sleep = timeout => {
     addNewSection("Lynn's Ladder tweaks");
     addOption(CheckboxOption("Use Lynns Ladder Code", "useLynnsLadderCode"));
     addOption(CheckboxOption("Show User ID", "showUserIDInLadder"));
+    addOption(CheckboxOption("Stick First Row To Top", "stickFirstRowToTop"));
 
     addNewSection("Lynn's Data tweaks");
     addOption(CheckboxOption("Save Data", "saveData"));
@@ -89,6 +90,7 @@ const sleep = timeout => {
         $("#chadMessageCount").val(lynnsQOLData.chadMessageCount);
         $("#useLynnsLadderCode").prop("checked", lynnsQOLData.useLynnsLadderCode);
         $("#showUserIDInLadder").prop("checked", lynnsQOLData.showUserIDInLadder);
+        $("#stickFirstRowToTop").prop("checked", lynnsQOLData.stickFirstRowToTop);
 
         $("#rowsInput").val(lynnsQOLData.rowsInput);
         $("#scrollableLadder").prop("checked", lynnsQOLData.scrollableLadder);
@@ -113,6 +115,7 @@ const sleep = timeout => {
                 chadMessageCount: $("#chadMessageCount").val(),
                 useLynnsLadderCode: $("#useLynnsLadderCode").prop("checked"),
                 showUserIDInLadder: $("#showUserIDInLadder").prop("checked"),
+                stickFirstRowToTop: $("#stickFirstRowToTop").prop("checked"),
 
 
                 rowsInput: $("#rowsInput").val(),
@@ -135,6 +138,7 @@ const sleep = timeout => {
     subscribeToDomNode("chadMessageCount", window.updateChad);
     subscribeToDomNode("useLynnsLadderCode", saveData);
     subscribeToDomNode("showUserIDInLadder", saveData);
+    subscribeToDomNode("stickFirstRowToTop", saveData);
 
 
     //Subscribing to the base scripts settings
@@ -240,7 +244,7 @@ const sleep = timeout => {
 
         const nextChad = () => {
             if (chatData.currentChatNumber + 1 <= identityData.highestCurrentLadder || window.unrestrictedChatNavigation) {
-                document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + (chatData.currentChatNumber + 1);
+                document.getElementsByClassName("chat-number")[0].innerHTML = " Chad # " + (chatData.currentChatNumber + 1) + " ";
                 changeChatRoom(chatData.currentChatNumber + 1);
                 updateChat();
             }
@@ -250,7 +254,7 @@ const sleep = timeout => {
         }
         const prevChad = () => {
             if (chatData.currentChatNumber > 1) {
-                document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + (chatData.currentChatNumber - 1);
+                document.getElementsByClassName("chat-number")[0].innerHTML = " Chad # " + (chatData.currentChatNumber - 1) + " ";
                 changeChatRoom(chatData.currentChatNumber - 1);
                 updateChat();
             }
@@ -771,6 +775,46 @@ const sleep = timeout => {
 
         $("#highestBias")[0].innerHTML = `${topBias.toFixed(0)} (Yours: ${ladderData.yourRanker.bias.toFixed(0)})`;
         $("#highestMulti")[0].innerHTML = `${topMulti.toFixed(0)} (Yours: ${ladderData.yourRanker.multiplier.toFixed(0)})`;
+
+        //Make the header of the ladder stick to the top of the ladder-container
+        if($(".ladder-container")[0])
+        {
+            var thead = $(".ladder-container")[0].getElementsByTagName("thead")[0];
+            var firstRow = $(".ladder-container")[0].getElementsByTagName("tbody")[0].children[0];
+            if(thead && firstRow)
+            {
+                thead.style.top = "0px";
+                thead.style.position = "sticky";
+                thead.style.zIndex = "2";
+                thead.style.backgroundColor = "white";
+
+                if($("#stickFirstRowToTop")[0].checked)
+                {
+
+                    firstRow.style.top = thead.offsetHeight + "px";
+                    firstRow.style.position = "sticky";
+                    firstRow.style.zIndex = "2";
+
+                    //insert another row beneath the first row
+                    var newRow = firstRow.cloneNode(true);
+                    newRow.style.top = (thead.offsetHeight + firstRow.offsetHeight) + "px";
+                    newRow.style.position = "sticky";
+                    newRow.style.zIndex = "2";
+                    newRow.style.height = "1px";
+                    //make it all black
+                    newRow.style.backgroundColor = "black";
+                    //remove all children text nodes
+                    for(let i = 0; i < newRow.children.length; i++)
+                    {
+                        newRow.children[i].innerHTML = "";
+                    }
+                    //insert it after the first row
+                    $(".ladder-container")[0].getElementsByTagName("tbody")[0].insertBefore(newRow, firstRow.nextSibling);
+                    //scroll the ladder-container 8px to the top
+                    $(".ladder-container")[0].scrollTop -= newRow.offsetHeight;
+                }
+            }
+        }
 
     };
 
