@@ -780,10 +780,86 @@ const sleep = timeout => {
     updateChat();
     expandChat();
 
+
+    //remove all event listeners from $('#messageInput')[0]
+    var el = document.getElementById("messageInput")
+    elClone = el.cloneNode(true);
+
+    el.parentNode.replaceChild(elClone, el);
+
+    document.getElementById("messageInput").addEventListener("keydown", function(e) {
+        //if the key is key up or down
+        if(e.keyCode == 38 || e.keyCode == 40)
+        {
+            e.preventDefault();
+            //if the mentionDropdown is open
+            if(!$("#mentionDropdown")[0])
+            {
+                return;
+            }
+
+            //unhighlight all the options
+            for(let i = 0; i < $("#mentionDropdown")[0].children.length; i++)
+            {
+                $("#mentionDropdown")[0].children[i].style.backgroundColor = "";
+            }
+
+            //increment or decrement dropdownElementSelected
+            if(e.keyCode == 38)
+            {
+                window.dropdownElementSelected--;
+            }
+            else
+            {
+                window.dropdownElementSelected++;
+            }
+
+            //if the selected element is out of bounds
+            if(window.dropdownElementSelected < 0)
+            {
+                window.dropdownElementSelected = $("#mentionDropdown")[0].children.length - 1;
+            }
+            else if(window.dropdownElementSelected >= $("#mentionDropdown")[0].children.length)
+            {
+                window.dropdownElementSelected = 0;
+            }
+
+            //highlight the selected element
+            $("#mentionDropdown")[0].children[window.dropdownElementSelected].style.backgroundColor = "rgba(200,200,255,1)";
+
+        }
+
+        //if the key is enter
+        if(e.keyCode == 13)
+        {
+            //if the mentionDropdown is open and we have a selection
+            if($("#mentionDropdown")[0] && window.dropdownElementSelected != -1)
+            {
+                //click the selected element
+                e.preventDefault();
+                $("#mentionDropdown")[0].children[window.dropdownElementSelected].click();
+                return;
+            }
+            else
+            {
+                sendMessage();
+            }
+        }
+    });
+
     //implement better mentioning system
     document.getElementById("messageInput").addEventListener("keyup", function(e) {
+
+        if(e.keyCode == 38 || e.keyCode == 40 || e.keyCode == 13)
+        {
+            e.preventDefault();
+            return;
+        }
+
+        //remove any existing dropdown
         var dropdown = document.getElementById("mentionDropdown");
         if(dropdown) { dropdown.remove(); }
+        window.dropdownElementSelected = -1;
 
         var text = document.getElementById("messageInput").value;
         //find the last @ in the text
@@ -809,7 +885,6 @@ const sleep = timeout => {
         window.possibleMention = possibleMentions;
         if(possibleMentions.length == 0 || possibleMentions.length > 10) { return; }
 
-        //remove any existing dropdown
 
         //create and display the dropdown
         var dropdown = document.createElement("div");
