@@ -168,82 +168,112 @@ const sleep = timeout => {
         }
     };
 
-    window.maxLadderReached = ladderData.currentLadder.number;
+    window.unrestrictedLadderNavigation = false;
     window.displayLadderNavigation = function () {
-        if (ladderData.currentLadder.number > window.maxLadderReached) {
-            window.maxLadderReached = ladderData.currentLadder.number;
+
+        if(document.getElementById("prevLadder"))
+        {
+            document.getElementById("prevLadder").disabled = ladderData.currentLadder.number <= 1;
+            document.getElementById("nextLadder").disabled = ladderData.currentLadder.number >= identityData.highestCurrentLadder && !window.unrestrictedLadderNavigation;
+            document.getElementById("ladderNum").innerHTML = ` Ladder # ${ladderData.currentLadder.number} `
+            return;
         }
 
         const nextLadder = () => {
-            if (ladderData.currentLadder.number + 1 <= window.maxLadderReached) {
+            if (ladderData.currentLadder.number + 1 <= identityData.highestCurrentLadder || window.unrestrictedLadderNavigation) {
                 changeLadder(ladderData.currentLadder.number + 1);
+                setTimeout(() => {
+                    displayLadderNavigation();
+                }, 100);
             }
         }
         const prevLadder = () => {
             if (ladderData.currentLadder.number > 1) {
                 changeLadder(ladderData.currentLadder.number - 1);
             }
+            setTimeout(() => {
+                displayLadderNavigation();
+            }, 100);
         }
 
         const nextButton = document.createElement('button');
         nextButton.classList.add("btn", "btn-outline-secondary");
         nextButton.innerHTML = "&gt;";
+        nextButton.id = "nextLadder";
         nextButton.onclick = nextLadder;
 
         const prevButton = document.createElement('button');
         prevButton.classList.add("btn", "btn-outline-secondary");
         prevButton.innerHTML = "&lt;";
+        prevButton.id = "prevLadder";
         prevButton.onclick = prevLadder;
 
         if (ladderData.currentLadder.number <= 1) prevButton.disabled = true;
-        if (ladderData.currentLadder.number >= maxLadderReached) nextButton.disabled = true;
+        if (ladderData.currentLadder.number >= identityData.highestCurrentLadder) nextButton.disabled = true;
 
         const ladderNum = document.createElement('span');
+        ladderNum.id = "ladderNum";
         ladderNum.innerHTML = ` Ladder # ${ladderData.currentLadder.number} `;
 
         $('#ladderNumber').empty().append(prevButton).append(ladderNum).append(nextButton);
+        document.getElementById("ladderNumber").id = "ladderNumberOld";
+        var div = document.createElement('div');
+        div.id = "ladderNumber";
+        document.head.appendChild(div);
+        div.style.display = "none";
     }
+
+    window.unrestrictedChatNavigation = false;
     window.displayChatNavigation = function () {
-        window.currentChat = ladderData.currentLadder.number;
+
+        if(document.getElementById("prevChad"))
+        {
+            document.getElementById("prevChad").disabled = chatData.currentChatNumber <= 1;
+            document.getElementById("nextChad").disabled = chatData.currentChatNumber >= identityData.highestCurrentLadder && !window.unrestrictedChatNavigation;
+            document.getElementById("chatNum").innerHTML = ` Chat # ${chatData.currentChatNumber} `;
+            return;
+        }
+
         const nextChad = () => {
-            if (window.currentChat + 1 <= window.maxLadderReached) {
-                window.currentChat++;
-                changeChatRoom(window.currentChat);
+            if (chatData.currentChatNumber + 1 <= identityData.highestCurrentLadder || window.unrestrictedChatNavigation) {
+                document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + (chatData.currentChatNumber + 1);
+                changeChatRoom(chatData.currentChatNumber + 1);
                 updateChat();
-                document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + window.currentChat;
-                prevButton.disabled = window.currentChat <= 1;
-                nextButton.disabled = window.currentChat >= maxLadderReached;
             }
+            setTimeout(() => {
+            window.displayChatNavigation();
+            }, 100);
         }
         const prevChad = () => {
-            if (window.currentChat > 1) {
-                window.currentChat--;
-                changeChatRoom(window.currentChat);
+            if (chatData.currentChatNumber > 1) {
+                document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + (chatData.currentChatNumber - 1);
+                changeChatRoom(chatData.currentChatNumber - 1);
                 updateChat();
-                document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + window.currentChat;
-
-
-                prevButton.disabled = window.currentChat <= 1;
-                nextButton.disabled = window.currentChat >= maxLadderReached;
             }
+            setTimeout(() => {
+            window.displayChatNavigation();
+            }, 100);
         }
 
         const nextButton = document.createElement('button');
         nextButton.classList.add("btn", "btn-outline-secondary");
         nextButton.innerHTML = "&gt;";
+        nextButton.id = "nextChad";
         nextButton.onclick = nextChad;
 
         const prevButton = document.createElement('button');
         prevButton.classList.add("btn", "btn-outline-secondary");
         prevButton.innerHTML = "&lt;";
+        prevButton.id = "prevChad";
         prevButton.onclick = prevChad;
 
-        if (window.currentChat <= 1) prevButton.disabled = true;
-        if (window.currentChat >= maxLadderReached) nextButton.disabled = true;
+        if (chatData.currentChatNumber <= 1) prevButton.disabled = true;
+        if (chatData.currentChatNumber >= identityData.highestCurrentLadder) nextButton.disabled = true;
 
         const chatNum = document.createElement('span');
         chatNum.classList.add("chat-number");
         chatNum.innerHTML = ` Chad # ${ladderData.currentLadder.number} `;
+        chatNum.id = "chatNum";
         var container = document.createElement('div');
         var container2 = document.createElement('div');
 
@@ -260,15 +290,32 @@ const sleep = timeout => {
     window.handleChatUpdates = function (message) {
         if (message) {
             if (ladderData.yourRanker.username != "") {
-                if (message.message.includes("@" + ladderData.yourRanker.username) &&
+                if (message.message.includes("@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId) &&
                     $("#mentionSounds").is(":checked")) {
                     mentionSound.play();
                 }
             }
             chatData.messages.unshift(message);
-            while (chatData.messages.length > chadMessageCount.value) chatData.messages.pop(); // <-- Change limit here
+            var maxMessages = $("#chadMessageCount").val();
+            if (!maxMessages > 10) maxMessages = 10;
+            while (chatData.messages.length > maxMessages) chatData.messages.pop(); // <-- Change limit here
         }
         updateChat();
+    };
+
+    let oldShowButtons = showButtons;
+    window.showButtons = function() {
+        oldShowButtons();
+        if(!ladderData.yourRanker.growing)
+        {
+            // Promote and Asshole Button Logic
+            let promoteButton = $('#promoteButton');
+            let assholeButton = $('#assholeButton');
+            let ladderNumber = $('#ladderNumber');
+            promoteButton.hide();
+            ladderNumber.show();
+            assholeButton.hide();
+        }
     };
 
     window.mention = function(name)
@@ -294,7 +341,7 @@ const sleep = timeout => {
         if (ladderData.yourRanker.username != "") {
 
             for (var i = 0; i < chatData.messages.length; i++) {
-                if (chatData.messages[i].message.includes("@" + ladderData.yourRanker.username) &&
+                if (chatData.messages[i].message.includes("@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId) &&
                     $("#highlightMentions").is(":checked")) {
                     //if they do, and this message was not touched yet, highlight the mention
                     if (chatData.messages[i].highlighted == false || chatData.messages[i].highlighted == undefined) {
@@ -303,10 +350,24 @@ const sleep = timeout => {
                         chatData.messages[i].message1 = chatData.messages[i].message;
 
                         //replace all occurences of the mention with a highlighted version
-                        chatData.messages[i].message = chatData.messages[i].message1.replaceAll("@" + ladderData.yourRanker.username, "<a style=\"color: red\">@" + ladderData.yourRanker.username + "</a>");
+                        chatData.messages[i].message = chatData.messages[i].message1.replaceAll("@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId, "<a style=\"color: red\">@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId + "</a>");
                         chatData.messages[i].highlighted = true;
                     }
                 }
+                //if we have a #L<number> mention, create a link to the ladder
+                //number can be any number
+                if (chatData.messages[i].message.includes("#L") && !chatData.messages[i].message.includes("changeLadder")) {
+                    var number = chatData.messages[i].message.split("#")[1].split(" ")[0].substring(1);
+                    chatData.messages[i].message = chatData.messages[i].message.replaceAll("#L" + number, "<a style=\"cursor: pointer; color: blue\" onclick='changeLadder(" + number + ")'>#L" + number + "</a>");
+                }
+
+                //if we have a #C<number> mention, create a link to the chat
+                //number can be any number
+                if (chatData.messages[i].message.includes("#C") && !chatData.messages[i].message.includes("changeChatRoom")) {
+                    var number = chatData.messages[i].message.split("#")[1].split(" ")[0].substring(1);
+                    chatData.messages[i].message = chatData.messages[i].message.replaceAll("#C" + number, "<a style=\"cursor: pointer; color: blue\" onclick='changeChatRoom(" + number + ")'>#C" + number + "</a>");
+                }
+
                 //if the message was already highlighted, but the user no longer wishes to see it highlighted, then unhighlight it
                 else if (chatData.messages[i].highlighted == true &&
                     !$("#highlightMentions").is(":checked")) {
@@ -315,9 +376,9 @@ const sleep = timeout => {
                 }
 
                 //check if the username has an onclick event
-                if (!chatData.messages[i].username.startsWith("<a onclick='mention(this)'>")) {
+                if (!chatData.messages[i].username.includes("<a style=\"cursor: pointer;\" onclick='mention(this)'>")) {
                     //if it doesn't, add one
-                    chatData.messages[i].username = "<a onclick='mention(this)'>" + chatData.messages[i].username + "</a>";
+                    chatData.messages[i].username = `<a style=\"cursor: pointer;\" onclick='mention(this)'>${chatData.messages[i].username} #${chatData.messages[i].accountId}</a>`;
                 }
             }
         }
@@ -508,11 +569,8 @@ const sleep = timeout => {
         oldUpdateLadder();
 
         displayLadderNavigation();
-        if(window.chatNavDisplayed !== "yes")
-        {
-            window.chatNavDisplayed = "yes";
-            displayChatNavigation();
-        }
+        displayChatNavigation();
+
         infoText.style.height = "70px";
 
         if(window.idToFollow == -1 && ladderData.yourRanker.accountId > 0) {
