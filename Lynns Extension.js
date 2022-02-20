@@ -744,6 +744,75 @@ const sleep = timeout => {
     updateChat();
     expandChat();
 
+    //implement better mentioning system
+    document.getElementById("messageInput").addEventListener("keyup", function(e) {
+        var dropdown = document.getElementById("mentionDropdown");
+        if(dropdown) { dropdown.remove(); }
+
+        var text = document.getElementById("messageInput").value;
+        //find the last @ in the text
+        var lastAt = text.lastIndexOf("@");
+        //if there is no @, return
+        if(lastAt == -1) { return; }
+        //if there is a space after the @, return
+        if(text.charAt(lastAt+1) == " ") { return; }
+
+        //if the text after the @ is part of any username, display a dropdown with all the matching usernames
+        var possibleMention = text.substring(lastAt+1);
+        var possibleMentionLower = possibleMention.toLowerCase();
+        var possibleMentions = [];
+        for(let i = 0; i < ladderData.rankers.length; i++)
+        {
+            if((ladderData.rankers[i].username + '#' + ladderData.rankers[i].accountId).toLowerCase().startsWith(possibleMentionLower))
+            {
+                possibleMentions.push((ladderData.rankers[i].username + '#' + ladderData.rankers[i].accountId));
+            }
+        }
+
+
+        window.possibleMention = possibleMentions;
+        if(possibleMentions.length == 0 || possibleMentions.length > 10) { return; }
+
+        //remove any existing dropdown
+
+        //create and display the dropdown
+        var dropdown = document.createElement("div");
+        dropdown.id = "mentionDropdown";
+        dropdown.style.display = "block";
+        dropdown.innerHTML = "";
+        for(let i = 0; i < possibleMentions.length; i++)
+        {
+            var option = document.createElement("option");
+            option.innerHTML = possibleMentions[i];
+
+            option.style.border = "1px solid black";
+
+            option.style.paddingRight = "5px";
+            option.style.paddingLeft = "5px";
+
+            option.addEventListener("click", function() {
+                document.getElementById("messageInput").value = text.substring(0, lastAt) + '@' + possibleMentions[i] + " ";
+                dropdown.remove();
+            });
+
+
+            dropdown.appendChild(option);
+        }
+        //add the dropdown to the document
+        var navbar = document.getElementsByClassName("fixed-bottom")[0];
+        document.body.appendChild(dropdown);
+
+        dropdown.style.top = (navbar.offsetTop - dropdown.offsetHeight - 20) + "px";
+        //set the dropdown to the right of the @
+        dropdown.style.left = (95) + "px";
+        dropdown.style.position = "absolute";
+        dropdown.style.background = "white";
+        dropdown.style.border = "1px solid black";
+        dropdown.style.borderRadius = "5px";
+        dropdown.style.zIndex = "1000";
+        dropdown.style.padding = "5px";
+    });
+
     if(window.lynnsMods == undefined)
     {
         window.lynnsMods = [
