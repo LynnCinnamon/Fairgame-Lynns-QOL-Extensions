@@ -318,6 +318,26 @@ const sleep = timeout => {
         }
     };
 
+    window.changeLadder = function(ladderNum) {
+        if(ladderNum <= identityData.highestCurrentLadder || window.unrestrictedLadderNavigation)
+        {
+            if (ladderSubscription) ladderSubscription.unsubscribe();
+            ladderSubscription = stompClient.subscribe('/topic/ladder/' + ladderNum,
+            (message) => handleLadderUpdates(JSON.parse(message.body)), {uuid: getCookie("_uuid")});
+            initLadder(ladderNum);
+        }
+    }
+
+    window.changeChatRoom = function(ladderNum) {
+        if(ladderNum <= identityData.highestCurrentLadder || window.unrestrictedChatNavigation)
+        {
+            chatSubscription.unsubscribe();
+            chatSubscription = stompClient.subscribe('/topic/chat/' + ladderNum,
+                (message) => handleChatUpdates(JSON.parse(message.body)), {uuid: getCookie("_uuid")});
+            initChat(ladderNum);
+        }
+    }
+
     window.mention = function(name)
     {
         name = name.text
