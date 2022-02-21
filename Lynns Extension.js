@@ -741,7 +741,7 @@ const sleep = timeout => {
 
         if(window.topRankerID != ladderData.rankers[0].accountId ||
             isNaN(window.topRankerTickCount) ||
-            ladderData.firstRanker.points.cmp(infoData.pointsForPromote) < 0 ||
+            ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) < 0 ||
             !ladderData.firstRanker.growing)
         {
             window.topRankerTickCount = -1;
