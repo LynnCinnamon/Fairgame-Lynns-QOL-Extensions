@@ -72,6 +72,8 @@ const sleep = timeout => {
 
     addNewSection("Lynn's Ladder tweaks");
     addOption(CheckboxOption("Use Lynns Ladder Code", "useLynnsLadderCode"));
+    addOption(CheckboxOption("Show User ID", "showUserIDInLadder"));
+    addOption(CheckboxOption("Stick First Row To Top", "stickFirstRowToTop"));
 
     addNewSection("Lynn's Data tweaks");
     addOption(CheckboxOption("Save Data", "saveData"));
@@ -87,6 +89,8 @@ const sleep = timeout => {
         $("#scrollableChad").prop("checked", lynnsQOLData.scrollableChad);
         $("#chadMessageCount").val(lynnsQOLData.chadMessageCount);
         $("#useLynnsLadderCode").prop("checked", lynnsQOLData.useLynnsLadderCode);
+        $("#showUserIDInLadder").prop("checked", lynnsQOLData.showUserIDInLadder);
+        $("#stickFirstRowToTop").prop("checked", lynnsQOLData.stickFirstRowToTop);
 
         $("#rowsInput").val(lynnsQOLData.rowsInput);
         $("#scrollableLadder").prop("checked", lynnsQOLData.scrollableLadder);
@@ -110,6 +114,8 @@ const sleep = timeout => {
                 scrollableChad: $("#scrollableChad").prop("checked"),
                 chadMessageCount: $("#chadMessageCount").val(),
                 useLynnsLadderCode: $("#useLynnsLadderCode").prop("checked"),
+                showUserIDInLadder: $("#showUserIDInLadder").prop("checked"),
+                stickFirstRowToTop: $("#stickFirstRowToTop").prop("checked"),
 
 
                 rowsInput: $("#rowsInput").val(),
@@ -131,6 +137,8 @@ const sleep = timeout => {
     subscribeToDomNode("chadMessageCount", saveData);
     subscribeToDomNode("chadMessageCount", window.updateChad);
     subscribeToDomNode("useLynnsLadderCode", saveData);
+    subscribeToDomNode("showUserIDInLadder", saveData);
+    subscribeToDomNode("stickFirstRowToTop", saveData);
 
 
     //Subscribing to the base scripts settings
@@ -236,7 +244,7 @@ const sleep = timeout => {
 
         const nextChad = () => {
             if (chatData.currentChatNumber + 1 <= identityData.highestCurrentLadder || window.unrestrictedChatNavigation) {
-                document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + (chatData.currentChatNumber + 1);
+                document.getElementsByClassName("chat-number")[0].innerHTML = " Chad # " + (chatData.currentChatNumber + 1) + " ";
                 changeChatRoom(chatData.currentChatNumber + 1);
                 updateChat();
             }
@@ -246,7 +254,7 @@ const sleep = timeout => {
         }
         const prevChad = () => {
             if (chatData.currentChatNumber > 1) {
-                document.getElementsByClassName("chat-number")[0].innerHTML = "Chad #" + (chatData.currentChatNumber - 1);
+                document.getElementsByClassName("chat-number")[0].innerHTML = " Chad # " + (chatData.currentChatNumber - 1) + " ";
                 changeChatRoom(chatData.currentChatNumber - 1);
                 updateChat();
             }
@@ -564,7 +572,11 @@ const sleep = timeout => {
         }
         row.insertCell(0).innerHTML = rank + " " + assholeTag;
         row.insertCell(1).innerHTML = `[+${ranker.bias.toString().padStart(2,"0")} x${ranker.multiplier.toString().padStart(2,"0")}]`;
-        row.insertCell(2).innerHTML = `<a onclick="window.idToFollow = ${ranker.accountId}">${ranker.username}</a>`;
+        var userIDSuper = `<sup style=" font-size: 0.95em ">#${ranker.accountId}</sup>`;
+        if(!$("#showUserIDInLadder")[0].checked) {
+            userIDSuper = "";
+        }
+        row.insertCell(2).innerHTML = `<a onclick="window.idToFollow = ${ranker.accountId}">${ranker.username}${userIDSuper}</a>`;
         row.cells[2].style.overflow = "hidden";
         row.insertCell(3).innerHTML = `${multiPrice} ${numberFormatter.format(ranker.power)} ${ranker.growing ? ranker.rank != 1 ? "(+" + numberFormatter.format((ranker.rank - 1 + ranker.bias) * ranker.multiplier) + ")" : "" : "(Promoted)"}`;
         row.cells[3].classList.add('text-end');
@@ -764,6 +776,46 @@ const sleep = timeout => {
         $("#highestBias")[0].innerHTML = `${topBias.toFixed(0)} (Yours: ${ladderData.yourRanker.bias.toFixed(0)})`;
         $("#highestMulti")[0].innerHTML = `${topMulti.toFixed(0)} (Yours: ${ladderData.yourRanker.multiplier.toFixed(0)})`;
 
+        //Make the header of the ladder stick to the top of the ladder-container
+        if($(".ladder-container")[0])
+        {
+            var thead = $(".ladder-container")[0].getElementsByTagName("thead")[0];
+            var firstRow = $(".ladder-container")[0].getElementsByTagName("tbody")[0].children[0];
+            if(thead && firstRow)
+            {
+                thead.style.top = "0px";
+                thead.style.position = "sticky";
+                thead.style.zIndex = "2";
+                thead.style.backgroundColor = "white";
+
+                if($("#stickFirstRowToTop")[0].checked)
+                {
+
+                    firstRow.style.top = thead.offsetHeight + "px";
+                    firstRow.style.position = "sticky";
+                    firstRow.style.zIndex = "2";
+
+                    //insert another row beneath the first row
+                    var newRow = firstRow.cloneNode(true);
+                    newRow.style.top = (thead.offsetHeight + firstRow.offsetHeight) + "px";
+                    newRow.style.position = "sticky";
+                    newRow.style.zIndex = "2";
+                    newRow.style.height = "1px";
+                    //make it all black
+                    newRow.style.backgroundColor = "black";
+                    //remove all children text nodes
+                    for(let i = 0; i < newRow.children.length; i++)
+                    {
+                        newRow.children[i].innerHTML = "";
+                    }
+                    //insert it after the first row
+                    $(".ladder-container")[0].getElementsByTagName("tbody")[0].insertBefore(newRow, firstRow.nextSibling);
+                    //scroll the ladder-container 8px to the top
+                    $(".ladder-container")[0].scrollTop -= newRow.offsetHeight;
+                }
+            }
+        }
+
     };
 
 
@@ -822,6 +874,20 @@ const sleep = timeout => {
             else if(window.dropdownElementSelected >= $("#mentionDropdown")[0].children.length)
             {
                 window.dropdownElementSelected = 0;
+            }
+
+            //scroll the selected element into view using the scrollTop property
+            if(window.dropdownElementSelected > -1)
+            {
+                //if the selected element is not fully visible
+                if($("#mentionDropdown")[0].children[window.dropdownElementSelected].offsetTop + $("#mentionDropdown")[0].children[window.dropdownElementSelected].offsetHeight > $("#mentionDropdown")[0].scrollTop + $("#mentionDropdown")[0].offsetHeight)
+                {
+                    $("#mentionDropdown")[0].scrollTop = $("#mentionDropdown")[0].children[window.dropdownElementSelected].offsetTop + $("#mentionDropdown")[0].children[window.dropdownElementSelected].offsetHeight - $("#mentionDropdown")[0].offsetHeight;
+                }
+                else if($("#mentionDropdown")[0].children[window.dropdownElementSelected].offsetTop < $("#mentionDropdown")[0].scrollTop)
+                {
+                    $("#mentionDropdown")[0].scrollTop = $("#mentionDropdown")[0].children[window.dropdownElementSelected].offsetTop;
+                }
             }
 
             //highlight the selected element
@@ -889,8 +955,10 @@ const sleep = timeout => {
 
 
         window.possibleMention = possibleMentions;
-        if(possibleMentions.length == 0 || possibleMentions.length > 10) { return; }
+        if(possibleMentions.length == 0) { return; }
 
+        //sort the possible mentions alphabetically
+        possibleMentions.sort();
 
         //create and display the dropdown
         var dropdown = document.createElement("div");
@@ -919,8 +987,7 @@ const sleep = timeout => {
         var navbar = document.getElementsByClassName("fixed-bottom")[0];
         document.body.appendChild(dropdown);
 
-        dropdown.style.top = (navbar.offsetTop - dropdown.offsetHeight - 20) + "px";
-        //set the dropdown to the right of the @
+        dropdown.style.top = (navbar.offsetTop - Math.min(dropdown.offsetHeight, 300)) + "px";
         dropdown.style.left = (95) + "px";
         dropdown.style.position = "absolute";
         dropdown.style.background = "white";
@@ -928,6 +995,15 @@ const sleep = timeout => {
         dropdown.style.borderRadius = "5px";
         dropdown.style.zIndex = "1000";
         dropdown.style.padding = "5px";
+
+        //limit the dropdown height to 300px
+        if(dropdown.offsetHeight > 300)
+        {
+            dropdown.style.height = "300px";
+            dropdown.style.overflowY = "scroll";
+            //scroll to the bottom
+            dropdown.scrollTop = dropdown.scrollHeight;
+        }
     });
 
     if(window.lynnsMods == undefined)
