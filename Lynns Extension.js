@@ -957,6 +957,8 @@ const sleep = timeout => {
         window.possibleMention = possibleMentions;
         if(possibleMentions.length == 0) { return; }
 
+        //sort the possible mentions alphabetically
+        possibleMentions.sort();
 
         //create and display the dropdown
         var dropdown = document.createElement("div");
