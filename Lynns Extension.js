@@ -367,8 +367,8 @@ const sleep = timeout => {
     };
 
     let oldInitLadder = initLadder;
-    window.initLadder = function() {
-        oldInitLadder();
+    window.initLadder = function(ladderNum) {
+        oldInitLadder(ladderNum);
         window.ladderUnlocked = ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) >= 0;
     }
 
