@@ -739,7 +739,10 @@ const sleep = timeout => {
         //Update stats for the top ranker
         let vinDecay = 0.9975;
 
-        if(window.topRankerID != ladderData.rankers[0].accountId || isNaN(window.topRankerTickCount))
+        if(window.topRankerID != ladderData.rankers[0].accountId ||
+            isNaN(window.topRankerTickCount) ||
+            ladderData.firstRanker.points.cmp(ladderStats.pointsNeededForManualPromote) < 0 ||
+            !ladderData.firstRanker.growing)
         {
             window.topRankerTickCount = -1;
             window.topRankerID = ladderData.rankers[0].accountId;
