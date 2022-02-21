@@ -42,6 +42,14 @@ const sleep = timeout => {
         'https://assets.mixkit.co/sfx/download/mixkit-software-interface-start-2574.wav'
     );
 
+    ladderUnlockedSound = new Audio(
+        'https://assets.mixkit.co/sfx/download/mixkit-magic-key-2840.wav'
+    );
+
+    ladderAscendedSound = new Audio(
+        'https://assets.mixkit.co/sfx/download/mixkit-melodic-bonus-collect-1938.wav'
+    );
+
     //Waiting for the base script to load
     while (true) {
         await sleep(100);
@@ -74,6 +82,24 @@ const sleep = timeout => {
     addOption(CheckboxOption("Use Lynns Ladder Code", "useLynnsLadderCode"));
     addOption(CheckboxOption("Show User ID", "showUserIDInLadder"));
     addOption(CheckboxOption("Stick First Row To Top", "stickFirstRowToTop"));
+    addOption(CheckboxOption("Ladder Unlocked Sound", "ladderUnlockedSound"));
+    addOption(SliderOption("Ladder Unlocked Volume", "ladderUnlockedVolume", 1, 100, 1, 100));
+    subscribeToDomNode("ladderUnlockedVolume", ()=>{
+        ladderUnlockedSound.volume = parseInt(ladderUnlockedVolume.value)/100;
+    });
+    addOption(ButtonOption("Test Ladder Unlocked Sound", "testLadderUnlockedSound"));
+    $(testLadderUnlockedSound).click(()=>{
+        ladderUnlockedSound.play();
+    });
+    addOption(CheckboxOption("Ladder Ascended Sound", "ladderAscendedSound"));
+    addOption(SliderOption("Ladder Ascended Volume", "ladderAscendedVolume", 1, 100, 1, 100));
+    subscribeToDomNode("ladderAscendedVolume", ()=>{
+        ladderAscendedSound.volume = parseInt(ladderAscendedVolume.value)/100;
+    });
+    addOption(ButtonOption("Test Ladder Ascended Sound", "testLadderAscendedSound"));
+    $(testLadderAscendedSound).click(()=>{
+        ladderAscendedSound.play();
+    });
 
     addNewSection("Lynn's Data tweaks");
     addOption(CheckboxOption("Save Data", "saveData"));
@@ -84,6 +110,7 @@ const sleep = timeout => {
         window.lynnsQOLData = JSON.parse(localStorage.getItem("lynnsQOLData"));
         $("#saveData").prop("checked", lynnsQOLData.saveData);
         $("#mentionSounds").prop("checked", lynnsQOLData.mentionSound);
+        $("#mentionVolume").val(lynnsQOLData.mentionVolume);
         $("#highlightMentions").prop("checked", lynnsQOLData.mentionHighlight);
         $("#invertChad").prop("checked", lynnsQOLData.invertChad);
         $("#scrollableChad").prop("checked", lynnsQOLData.scrollableChad);
@@ -91,6 +118,14 @@ const sleep = timeout => {
         $("#useLynnsLadderCode").prop("checked", lynnsQOLData.useLynnsLadderCode);
         $("#showUserIDInLadder").prop("checked", lynnsQOLData.showUserIDInLadder);
         $("#stickFirstRowToTop").prop("checked", lynnsQOLData.stickFirstRowToTop);
+        $("#ladderUnlockedSound").prop("checked", lynnsQOLData.ladderUnlockedSound);
+        $("#ladderUnlockedVolume").val(lynnsQOLData.ladderUnlockedVolume);
+        $("#ladderAscendedSound").prop("checked", lynnsQOLData.ladderAscendedSound);
+        $("#ladderAscendedVolume").val(lynnsQOLData.ladderAscendedVolume);
+
+        mentionSound.volume = parseInt(mentionVolume.value)/100;
+        ladderUnlockedSound.volume = parseInt(ladderUnlockedVolume.value)/100;
+        ladderAscendedSound.volume = parseInt(ladderAscendedVolume.value)/100;
 
         $("#rowsInput").val(lynnsQOLData.rowsInput);
         $("#scrollableLadder").prop("checked", lynnsQOLData.scrollableLadder);
@@ -99,7 +134,7 @@ const sleep = timeout => {
         $("#promotePoints").prop("checked", lynnsQOLData.promotePoints);
 
         expandLadder(lynnsQOLData.scrollableLadder);
-        qolOptions.expandedLadder.size = parseInt(lynnsQOLData.rowsInput);
+        qolOptions.expandedLadder.size = parseInt(lynnsQOLData.rowsInput) > 10 ? parseInt(lynnsQOLData.rowsInput) : 10;
         clientData.ladderPadding = qolOptions.expandedLadder.size / 2;
     }
 
@@ -116,6 +151,11 @@ const sleep = timeout => {
                 useLynnsLadderCode: $("#useLynnsLadderCode").prop("checked"),
                 showUserIDInLadder: $("#showUserIDInLadder").prop("checked"),
                 stickFirstRowToTop: $("#stickFirstRowToTop").prop("checked"),
+                ladderUnlockedSound: $("#ladderUnlockedSound").prop("checked"),
+                ladderUnlockedVolume: $("#ladderUnlockedVolume").val(),
+                ladderAscendedSound: $("#ladderAscendedSound").prop("checked"),
+                ladderAscendedVolume: $("#ladderAscendedVolume").val(),
+                mentionVolume: $("#mentionVolume").val(),
 
 
                 rowsInput: $("#rowsInput").val(),
@@ -326,6 +366,12 @@ const sleep = timeout => {
         }
     };
 
+    let oldInitLadder = initLadder;
+    window.initLadder = function() {
+        oldInitLadder();
+        window.ladderUnlocked = ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) >= 0;
+    }
+
     window.changeLadder = function(ladderNum) {
         if(ladderNum <= identityData.highestCurrentLadder || window.unrestrictedLadderNavigation)
         {
@@ -333,6 +379,7 @@ const sleep = timeout => {
             ladderSubscription = stompClient.subscribe('/topic/ladder/' + ladderNum,
             (message) => handleLadderUpdates(JSON.parse(message.body)), {uuid: getCookie("_uuid")});
             initLadder(ladderNum);
+            window.ladderUnlocked = ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) >= 0;
         }
     }
 
@@ -349,6 +396,10 @@ const sleep = timeout => {
             identityData.highestCurrentLadder = newLadderNum;
             changeLadder(newLadderNum);
             changeChatRoom(newLadderNum);
+            if($("#ladderAscendedSound").is(":checked"))
+            {
+                ladderAscendedSound.play();
+            }
         }
     }
 
@@ -763,6 +814,19 @@ const sleep = timeout => {
         {
             $("#topVinegarLoss")[0].style.color = "black";
             $("#topVinegarLoss")[0].innerHTML = "No decay in ladder > 1";
+        }
+
+
+        if(!window.ladderUnlocked)
+        {
+            window.ladderUnlocked = ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) >= 0;
+            if(window.ladderUnlocked)
+            {
+                if($("#ladderUnlockedSound")[0].checked)
+                {
+                    ladderUnlockedSound.play();
+                }
+            }
         }
 
         //calculate the top bias and multi excluding your own
