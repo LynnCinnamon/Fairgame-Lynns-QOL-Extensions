@@ -987,7 +987,7 @@ const sleep = timeout => {
         var navbar = document.getElementsByClassName("fixed-bottom")[0];
         document.body.appendChild(dropdown);
 
-        dropdown.style.top = (navbar.offsetTop - Math.min(dropdown.offsetHeight, 300)) + "px";
+        dropdown.style.bottom = navbar.offsetHeight + "px";
         dropdown.style.left = (95) + "px";
         dropdown.style.position = "absolute";
         dropdown.style.background = "white";
