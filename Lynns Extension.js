@@ -876,6 +876,20 @@ const sleep = timeout => {
                 window.dropdownElementSelected = 0;
             }
 
+            //scroll the selected element into view using the scrollTop property
+            if(window.dropdownElementSelected > -1)
+            {
+                //if the selected element is not fully visible
+                if($("#mentionDropdown")[0].children[window.dropdownElementSelected].offsetTop + $("#mentionDropdown")[0].children[window.dropdownElementSelected].offsetHeight > $("#mentionDropdown")[0].scrollTop + $("#mentionDropdown")[0].offsetHeight)
+                {
+                    $("#mentionDropdown")[0].scrollTop = $("#mentionDropdown")[0].children[window.dropdownElementSelected].offsetTop + $("#mentionDropdown")[0].children[window.dropdownElementSelected].offsetHeight - $("#mentionDropdown")[0].offsetHeight;
+                }
+                else if($("#mentionDropdown")[0].children[window.dropdownElementSelected].offsetTop < $("#mentionDropdown")[0].scrollTop)
+                {
+                    $("#mentionDropdown")[0].scrollTop = $("#mentionDropdown")[0].children[window.dropdownElementSelected].offsetTop;
+                }
+            }
+
             //highlight the selected element
             $("#mentionDropdown")[0].children[window.dropdownElementSelected].style.backgroundColor = "rgba(200,200,255,1)";
 
@@ -941,7 +955,7 @@ const sleep = timeout => {
 
 
         window.possibleMention = possibleMentions;
-        if(possibleMentions.length == 0 || possibleMentions.length > 10) { return; }
+        if(possibleMentions.length == 0) { return; }
 
 
         //create and display the dropdown
@@ -971,8 +985,7 @@ const sleep = timeout => {
         var navbar = document.getElementsByClassName("fixed-bottom")[0];
         document.body.appendChild(dropdown);
 
-        dropdown.style.top = (navbar.offsetTop - dropdown.offsetHeight - 20) + "px";
-        //set the dropdown to the right of the @
+        dropdown.style.top = (navbar.offsetTop - Math.min(dropdown.offsetHeight, 300)) + "px";
         dropdown.style.left = (95) + "px";
         dropdown.style.position = "absolute";
         dropdown.style.background = "white";
@@ -980,6 +993,15 @@ const sleep = timeout => {
         dropdown.style.borderRadius = "5px";
         dropdown.style.zIndex = "1000";
         dropdown.style.padding = "5px";
+
+        //limit the dropdown height to 300px
+        if(dropdown.offsetHeight > 300)
+        {
+            dropdown.style.height = "300px";
+            dropdown.style.overflowY = "scroll";
+            //scroll to the bottom
+            dropdown.scrollTop = dropdown.scrollHeight;
+        }
     });
 
     if(window.lynnsMods == undefined)
