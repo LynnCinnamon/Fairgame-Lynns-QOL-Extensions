@@ -540,10 +540,6 @@ const sleep = timeout => {
         newValue(controls, "Highest Multi: ", "highestMulti");
         newLine(controls);
         newValue(controls, "Shortest #1 ETA: ", "shortestNr1ETA");
-        newLine(controls);
-        newValue(controls, "Bottom time if Bias: ", "bottomTimeIfBias");
-        newLine(controls);
-        newValue(controls, "Bottom time if Multi: ", "bottomTimeIfMulti");
 
         //next line
         newLine(controls);
