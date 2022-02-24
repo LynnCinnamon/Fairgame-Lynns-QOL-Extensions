@@ -67,6 +67,7 @@ const sleep = timeout => {
     addOption(CheckboxOption("Scrollable Chad", "scrollableChad"));
     addOption(TextInputOption("Saved Chad Message Count", "chadMessageCount", "# of chad messages, max 9999", "4"))
     chadMessageCount.value = 50;
+    addOption(CheckboxOption("Enable group mentions", "enableGroupMentions"));
     addOption(CheckboxOption("Highlight Mentions", "highlightMentions", true));
     addOption(CheckboxOption("Mention Sound", "mentionSounds"));
     addOption(SliderOption("Mention Volume", "mentionVolume", 1, 100, 1, 100));
@@ -122,6 +123,7 @@ const sleep = timeout => {
         $("#ladderUnlockedVolume").val(lynnsQOLData.ladderUnlockedVolume);
         $("#ladderAscendedSound").prop("checked", lynnsQOLData.ladderAscendedSound);
         $("#ladderAscendedVolume").val(lynnsQOLData.ladderAscendedVolume);
+        $("#enableGroupMentions").prop("checked", lynnsQOLData.enableGroupMentions);
 
         mentionSound.volume = parseInt(mentionVolume.value)/100;
         ladderUnlockedSound.volume = parseInt(ladderUnlockedVolume.value)/100;
@@ -156,6 +158,7 @@ const sleep = timeout => {
                 ladderAscendedSound: $("#ladderAscendedSound").prop("checked"),
                 ladderAscendedVolume: $("#ladderAscendedVolume").val(),
                 mentionVolume: $("#mentionVolume").val(),
+                enableGroupMentions: $("#enableGroupMentions").prop("checked"),
 
 
                 rowsInput: $("#rowsInput").val(),
@@ -179,6 +182,24 @@ const sleep = timeout => {
     subscribeToDomNode("useLynnsLadderCode", saveData);
     subscribeToDomNode("showUserIDInLadder", saveData);
     subscribeToDomNode("stickFirstRowToTop", saveData);
+    subscribeToDomNode("enableGroupMentions", saveData);
+
+    showOrHideGroupSub = ()=>{
+        var subscribeButton = $("#mentionSubscribeButton")[0];
+        var subscribeText = $("#mentionSubscribeTextInput")[0];
+        var unsubButtons = $(".GroupNotificationUnsubscribe");
+        if ($("#enableGroupMentions").prop("checked")) {
+            subscribeText.style.display = "inline-block";
+            subscribeButton.style.display = "inline-block";
+            unsubButtons.css("display", "block");
+        } else {
+            subscribeText.style.display = "none";
+            subscribeButton.style.display = "none";
+            unsubButtons.css("display", "none");
+        }
+    };
+    setTimeout(showOrHideGroupSub, 100);
+    subscribeToDomNode("enableGroupMentions", showOrHideGroupSub);
 
 
     //Subscribing to the base scripts settings
@@ -342,6 +363,14 @@ const sleep = timeout => {
                     $("#mentionSounds").is(":checked")) {
                     mentionSound.play();
                 }
+                if($("#enableGroupMentions").prop("checked"))
+                {
+                    window.subscribedMentions.forEach(mention => {
+                        if (message.message.includes("@" + mention)) {
+                            mentionSound.play();
+                        }
+                    });
+                }
             }
             chatData.messages.unshift(message);
             var maxMessages = $("#chadMessageCount").val();
@@ -429,6 +458,7 @@ const sleep = timeout => {
     }
 
     let oldUpdateChat = window.updateChat;
+    window.subscribedMentions = [];
     window.updateChat = function () {
 
 
@@ -448,6 +478,27 @@ const sleep = timeout => {
                         chatData.messages[i].message = chatData.messages[i].message1.replaceAll("@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId, "<a style=\"color: red\">@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId + "</a>");
                         chatData.messages[i].highlighted = true;
                     }
+                }
+                if($("#enableGroupMentions").prop("checked"))
+                {
+                    window.subscribedMentions.forEach(mention => {
+                        if (chatData.messages[i].message.includes("@" + mention) &&
+                        $("#highlightMentions").is(":checked")) {
+                            //if they do, and this message was not touched yet, highlight the mention
+                            if (chatData.messages[i].highlighted == false || chatData.messages[i].highlighted == undefined) {
+
+                                //make a copy of the message
+                                if(chatData.messages[i].message1 == undefined)
+                                {
+                                    chatData.messages[i].message1 = chatData.messages[i].message;
+                                }
+
+                                //replace all occurences of the mention with a highlighted version
+                                chatData.messages[i].message = chatData.messages[i].message1.replaceAll("@" + mention, "<a style=\"color: red\">@" + mention + "</a>");
+                                chatData.messages[i].highlighted = true;
+                            }
+                        }
+                    });
                 }
                 //if we have a #L<number> mention, create a link to the ladder
                 //number can be any number
@@ -557,6 +608,41 @@ const sleep = timeout => {
         followMeLabel.innerHTML = "Follow me on ladder";
         followMeLabel.id = "followMeLabel";
         controls.appendChild(followMeLabel);
+
+
+        var rightParent = document.querySelector("div.col");
+        var textInput = document.createElement("input");
+        textInput.type = "text";
+        textInput.id = "mentionSubscribeTextInput";
+        var subscribeButton = document.createElement("button");
+        subscribeButton.id = "mentionSubscribeButton";
+        subscribeButton.innerHTML = "Subscribe to mention";
+        subscribeButton.className = "btn btn-primary";
+        subscribeButton.style.height = "27px";
+        subscribeButton.style.lineHeight = "0px";
+        subscribeButton.style.marginTop = "-6px";
+        subscribeButton.onclick = function () {
+            var text = document.getElementById("mentionSubscribeTextInput").value;
+            if (text.length > 0) {
+                window.subscribedMentions.push(text);
+                document.getElementById("mentionSubscribeTextInput").value = "";
+                var unsub = ButtonOption("Unsubscribe from @" + text, "unsubscribeButton");
+                unsub.classList.add("GroupNotificationUnsubscribe");
+                rightParent.appendChild(unsub);
+                unsub.onclick = function () {
+                    window.subscribedMentions.splice(window.subscribedMentions.indexOf(text), 1);
+                    unsub.parentNode.removeChild(unsub);
+                }
+                var newLine = document.createElement("br");
+                unsub.parentNode.appendChild(newLine);
+            }
+        };
+
+        rightParent.appendChild(textInput);
+        rightParent.appendChild(subscribeButton);
+
+        textInput.style.display = "none";
+        subscribeButton.style.display = "none";
 
         window.controlsInserted = true;
     }
@@ -1005,7 +1091,7 @@ const sleep = timeout => {
             e.preventDefault();
             return;
         }
-        
+
         //if the key is escape
         if(e.keyCode == 27)
         {
