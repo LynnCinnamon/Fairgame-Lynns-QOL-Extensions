@@ -537,7 +537,6 @@ const sleep = timeout => {
         newValue(controls, "Highest Multi: ", "highestMulti");
         newLine(controls);
         newValue(controls, "Highest Bias: ", "highestBias");
-        newValue(controls, "Highest Multi: ", "highestMulti");
         newLine(controls);
         newValue(controls, "Shortest #1 ETA: ", "shortestNr1ETA");
 
