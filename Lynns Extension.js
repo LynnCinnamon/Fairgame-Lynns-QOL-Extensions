@@ -369,7 +369,7 @@ const sleep = timeout => {
     let oldInitLadder = initLadder;
     window.initLadder = function(ladderNum) {
         oldInitLadder(ladderNum);
-        window.ladderUnlocked = ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) >= 0;
+        window.ladderUnlocked = ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) >= 0 && ladderNum == identityData.highestCurrentLadder;
     }
 
     window.changeLadder = function(ladderNum) {
@@ -537,6 +537,13 @@ const sleep = timeout => {
         newValue(controls, "Highest Multi: ", "highestMulti");
         newLine(controls);
         newValue(controls, "Highest Bias: ", "highestBias");
+        newValue(controls, "Highest Multi: ", "highestMulti");
+        newLine(controls);
+        newValue(controls, "Shortest #1 ETA: ", "shortestNr1ETA");
+        newLine(controls);
+        newValue(controls, "Bottom time if Bias: ", "bottomTimeIfBias");
+        newLine(controls);
+        newValue(controls, "Bottom time if Multi: ", "bottomTimeIfMulti");
 
         //next line
         newLine(controls);
@@ -571,6 +578,7 @@ const sleep = timeout => {
     let theyNeverCatchYouCol = "#9ce3e8"     //They Never Catch You
 
     window.originalWriteNewRow = window.writeNewRow;
+    window.shortestETAToLadderEnd = 999999999;
     window.lynnsWriteNewRow = function(body, ranker) {
         let row = body.insertRow();
         row.id = "ranker-" + ranker.accountId;
@@ -592,13 +600,23 @@ const sleep = timeout => {
         const pointsLeftPromote = infoData.pointsForPromote.mul(ladderData.currentLadder.number)
  - ranker.points;
         let timeToFirst = "";
+        let currentETA = 0;
         if (ladderData.firstRanker.points.lessThan(infoData.pointsForPromote.mul(ladderData.currentLadder.number)
 )) {
             // Time to reach minimum promotion points of the ladder
+            currentETA = solveQuadratic(theirAcc/2, ranker.power, -pointsLeftPromote);
             timeToFirst = 'L' + secondsToHms(solveQuadratic(theirAcc/2, ranker.power, -pointsLeftPromote));
         } else {
             // time to reach first ranker
+            currentETA = solveQuadratic(theirAcc/2, firstPowerDifference, -pointsToFirst)
             timeToFirst =  secondsToHms(solveQuadratic(theirAcc/2, firstPowerDifference, -pointsToFirst));
+        }
+
+        if (currentETA > 0 && !(!ranker.growing || (ranker.rank === 1 && ladderData.firstRanker.points.greaterThan(infoData.pointsForPromote.mul(ladderData.currentLadder.number)
+        )))) {
+            if (currentETA < window.shortestETAToLadderEnd) {
+                window.shortestETAToLadderEnd = currentETA;
+            }
         }
 
         if (!ranker.growing || (ranker.rank === 1 && ladderData.firstRanker.points.greaterThan(infoData.pointsForPromote.mul(ladderData.currentLadder.number)
@@ -664,8 +682,12 @@ const sleep = timeout => {
         else {
             window.writeNewRow = window.originalWriteNewRow;
         }
+        window.shortestETAToLadderEnd = 999999999;
 
         oldUpdateLadder();
+
+        document.getElementById("shortestNr1ETA").innerHTML = (secondsToHms(window.shortestETAToLadderEnd));
+
 
         displayLadderNavigation();
         displayChatNavigation();
