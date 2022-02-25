@@ -632,9 +632,10 @@ const sleep = timeout => {
                 window.subscribedMentions.push(text);
                 document.getElementById("mentionSubscribeTextInput").value = "";
                 var unsub = ButtonOption("Unsubscribe from @" + text, "unsubscribeButton");
+
                 unsub.classList.add("GroupNotificationUnsubscribe");
                 rightParent.appendChild(unsub);
-                unsub.onclick = function () {
+                unsubscribeButton.onclick = function () {
                     window.subscribedMentions.splice(window.subscribedMentions.indexOf(text), 1);
                     unsub.parentNode.removeChild(unsub);
                 }
