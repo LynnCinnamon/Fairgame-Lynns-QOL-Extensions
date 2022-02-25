@@ -242,7 +242,7 @@ const sleep = timeout => {
         }
     };
 
-    window.unrestrictedLadderNavigation = false;
+    window.unrestrictedLadderNavigation = localStorage.getItem("isModerator") === "true";
     window.displayLadderNavigation = function () {
 
         if(document.getElementById("prevLadder"))
@@ -297,7 +297,7 @@ const sleep = timeout => {
         div.style.display = "none";
     }
 
-    window.unrestrictedChatNavigation = false;
+    window.unrestrictedChatNavigation = localStorage.getItem("isModerator") === "true";
     window.displayChatNavigation = function () {
 
         if(document.getElementById("prevChad"))
