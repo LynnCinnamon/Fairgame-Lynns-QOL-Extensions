@@ -1211,9 +1211,10 @@ const sleep = timeout => {
         if(latestCode != currentCode)
         {
             var bo = ButtonOption("Update Script", "updateScript")
-            //add bo as the first child to $("#offcanvas-body")[0]
-            $("#offcanvas-body")[0].insertBefore(bo, $("#offcanvas-body")[0].children[0]);
+            //add bo as the second child to $("#offcanvasOptions")[0]
+            $("#offcanvasOptions")[0].insertBefore(bo, $("#offcanvasOptions")[0].children[1]);
             $("#updateScript")[0].addEventListener("click", function() {
+                localStorage.setItem("autoLoadQOL", true);
                 window.location.reload();
             });
 
