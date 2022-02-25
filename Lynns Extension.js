@@ -1182,6 +1182,52 @@ const sleep = timeout => {
         }
     });
 
+    function loadHTML(url)
+    {
+        return new Promise(function(resolve, reject) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.onreadystatechange = function() {
+                if(xhr.readyState == 4)
+                {
+                    if(xhr.status == 200)
+                    {
+                        resolve(xhr.responseText);
+                    }
+                    else
+                    {
+                        reject(xhr.status);
+                    }
+                }
+            }
+            xhr.send();
+        });
+    }
+
+    window.currentCode = await loadHTML("https://raw.githack.com/LynnCinnamon/Fairgame-Lynns-QOL-Extensions/master/Lynns%20Extension.js");
+    async function checkForUpdate()
+    {
+        const latestCode = await loadHTML("https://raw.githack.com/LynnCinnamon/Fairgame-Lynns-QOL-Extensions/master/Lynns%20Extension.js");
+        if(latestCode != currentCode)
+        {
+            var bo = ButtonOption("Update Script", "updateScript")
+            //add bo as the first child to $("#offcanvas-body")[0]
+            $("#offcanvas-body")[0].insertBefore(bo, $("#offcanvas-body")[0].children[0]);
+            $("#updateScript")[0].addEventListener("click", function() {
+                window.location.reload();
+            });
+
+            //Color in the button so the user is made aware of it.
+            //in color darkgoldenrod
+            document.querySelector("button.navbar-toggler:nth-child(4)").style.backgroundColor = "darkgoldenrod";
+        }
+        else
+        {
+            setTimeout(checkForUpdate, 1000*60*5);
+        }
+    }
+    checkForUpdate();
+
     if(window.lynnsMods == undefined)
     {
         window.lynnsMods = [
