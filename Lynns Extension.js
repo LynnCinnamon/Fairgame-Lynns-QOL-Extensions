@@ -104,6 +104,11 @@ const sleep = timeout => {
 
     addNewSection("Lynn's Data tweaks");
     addOption(CheckboxOption("Save Data", "saveData"));
+    addNewSection("Report Bugs");
+    addOption(ButtonOption("Github", "reportBugGithub"));
+    $(reportBugGithub).click(()=>{
+        window.open("https://github.com/LynnCinnamon/Fairgame-Lynns-QOL-Extensions/issues/new");
+    });
 
 
     //Load options
