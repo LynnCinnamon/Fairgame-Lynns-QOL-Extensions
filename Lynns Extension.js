@@ -82,6 +82,7 @@ const sleep = timeout => {
     addNewSection("Lynn's Ladder tweaks");
     addOption(CheckboxOption("Use Lynns Ladder Code", "useLynnsLadderCode"));
     addOption(CheckboxOption("Show User ID", "showUserIDInLadder"));
+    addOption(CheckboxOption("Hide Promoted Users", "hidePromotedUsers"));
     addOption(CheckboxOption("Stick First Row To Top", "stickFirstRowToTop"));
     addOption(CheckboxOption("Ladder Unlocked Sound", "ladderUnlockedSound"));
     addOption(SliderOption("Ladder Unlocked Volume", "ladderUnlockedVolume", 1, 100, 1, 100));
@@ -129,6 +130,7 @@ const sleep = timeout => {
         $("#ladderAscendedSound").prop("checked", lynnsQOLData.ladderAscendedSound);
         $("#ladderAscendedVolume").val(lynnsQOLData.ladderAscendedVolume);
         $("#enableGroupMentions").prop("checked", lynnsQOLData.enableGroupMentions);
+        $("#hidePromotedUsers").prop("checked", lynnsQOLData.hidePromotedUsers);
 
         mentionSound.volume = parseInt(mentionVolume.value)/100;
         ladderUnlockedSound.volume = parseInt(ladderUnlockedVolume.value)/100;
@@ -164,6 +166,7 @@ const sleep = timeout => {
                 ladderAscendedVolume: $("#ladderAscendedVolume").val(),
                 mentionVolume: $("#mentionVolume").val(),
                 enableGroupMentions: $("#enableGroupMentions").prop("checked"),
+                hidePromotedUsers: $("#hidePromotedUsers").prop("checked"),
 
 
                 rowsInput: $("#rowsInput").val(),
@@ -188,6 +191,7 @@ const sleep = timeout => {
     subscribeToDomNode("showUserIDInLadder", saveData);
     subscribeToDomNode("stickFirstRowToTop", saveData);
     subscribeToDomNode("enableGroupMentions", saveData);
+    subscribeToDomNode("hidePromotedUsers", saveData);
 
     showOrHideGroupSub = ()=>{
         var subscribeButton = $("#mentionSubscribeButton")[0];
@@ -667,6 +671,15 @@ const sleep = timeout => {
     window.originalWriteNewRow = window.writeNewRow;
     window.shortestETAToLadderEnd = 999999999;
     window.lynnsWriteNewRow = function(body, ranker) {
+
+        if($("#hidePromotedUsers").is(":checked"))
+        {
+            if(!ranker.growing)
+            {
+                return;
+            }
+        }
+
         let row = body.insertRow();
         row.id = "ranker-" + ranker.accountId;
         const myAcc = getAcc(ladderData.yourRanker);
@@ -1207,24 +1220,28 @@ const sleep = timeout => {
     window.currentCode = await loadHTML("https://raw.githack.com/LynnCinnamon/Fairgame-Lynns-QOL-Extensions/master/Lynns%20Extension.js");
     async function checkForUpdate()
     {
-        const latestCode = await loadHTML("https://raw.githack.com/LynnCinnamon/Fairgame-Lynns-QOL-Extensions/master/Lynns%20Extension.js");
-        if(latestCode != currentCode)
+        try{
+            const latestCode = await loadHTML("https://raw.githack.com/LynnCinnamon/Fairgame-Lynns-QOL-Extensions/master/Lynns%20Extension.js");
+            if(latestCode != currentCode)
+            {
+                var bo = ButtonOption("Update Script", "updateScript")
+                //add bo as the second child to $("#offcanvasOptions")[0]
+                $("#offcanvasOptions")[0].insertBefore(bo, $("#offcanvasOptions")[0].children[1]);
+                $("#updateScript")[0].addEventListener("click", function() {
+                    localStorage.setItem("autoLoadQOL", true);
+                    window.location.reload();
+                });
+                //Color in the button so the user is made aware of it.
+                //in color darkgoldenrod
+                document.querySelector("button.navbar-toggler:nth-child(4)").style.backgroundColor = "darkgoldenrod";
+            }
+            else
+            {
+                setTimeout(checkForUpdate, 1000*60*5);
+            }
+        } catch(e)
         {
-            var bo = ButtonOption("Update Script", "updateScript")
-            //add bo as the second child to $("#offcanvasOptions")[0]
-            $("#offcanvasOptions")[0].insertBefore(bo, $("#offcanvasOptions")[0].children[1]);
-            $("#updateScript")[0].addEventListener("click", function() {
-                localStorage.setItem("autoLoadQOL", true);
-                window.location.reload();
-            });
-
-            //Color in the button so the user is made aware of it.
-            //in color darkgoldenrod
-            document.querySelector("button.navbar-toggler:nth-child(4)").style.backgroundColor = "darkgoldenrod";
-        }
-        else
-        {
-            setTimeout(checkForUpdate, 1000*60*5);
+            setTimeout(checkForUpdate, 1000*60*1);
         }
     }
     checkForUpdate();
