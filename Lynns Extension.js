@@ -103,6 +103,10 @@ const sleep = timeout => {
         ladderAscendedSound.play();
     });
 
+    addNewSection("Lynn's Mod Loader");
+    var modLoaderContainer = TextInputOption("Add Script URL", "addScriptURLTextField", "URL", "", "addNewModScript()")
+    addOption(modLoaderContainer);
+
     addNewSection("Lynn's Data tweaks");
     addOption(CheckboxOption("Save Data", "saveData"));
     addNewSection("Report Bugs");
@@ -110,6 +114,55 @@ const sleep = timeout => {
     $(reportBugGithub).click(()=>{
         window.open("https://github.com/LynnCinnamon/Fairgame-Lynns-QOL-Extensions/issues/new");
     });
+
+    window.addNewModScript = (url = "") => {
+        //check if localStorage has a key called "modLoaderRiskAccepted" and if it is true
+        if (!(localStorage.getItem("modLoaderRiskAccepted") == "true")) {
+            //if it is not true, show the mod loader risk warning
+            if(!confirm("This will load a script from an untrusted source.\n\nThis is not recommended unless you know what you are doing.\n\nClick OK to continue, or Cancel to stop loading the script.")){
+                return;
+            }
+            //set localStorage key "modLoaderRiskAccepted" to true
+            localStorage.setItem("modLoaderRiskAccepted", "true");
+        }
+
+        var modEntry = document.createElement("div");
+        modEntry.className = "modEntry";
+        modEntry.style.margin = "15px";
+        modEntry.innerHTML = `
+            <div class="modEntryTitle">
+                <input type="text" class="modEntryTitleInput" placeholder="Script Name">
+            </div>
+            <div class="modEntryURL">
+                <input type="text" class="modEntryURLInput" placeholder="Script URL"></input>
+            </div>
+            <div class="modEntryRemove" style="display: inline-block">
+                <button class="btn btn-primary shadow-none" onclick="this.parentElement.parentElement.remove(); saveData()">Remove</button>
+            </div>
+            <div class="modEntrySave" style="display: inline-block">
+                <button class="btn btn-primary shadow-none" onclick="saveData()">Save</button>
+            </div>
+        `;
+        $(modLoaderContainer).append(modEntry);
+        modEntry.querySelector(".modEntryURLInput").value = addScriptURLTextField.value;
+        modEntry.querySelector(".modEntryTitleInput").value = addScriptURLTextField.value.split("/").pop().split(".").shift();
+        addScriptURLTextField.value = "";
+
+        $(modEntry.querySelector(".modEntryURLInput")).change(()=>{
+            modEntry.querySelector(".modEntryTitleInput").value = modEntry.querySelector(".modEntryURLInput").value.split("/").pop().split(".").shift();
+        });
+
+        //now load the script
+        if(url)
+        {
+            loadAndRunScript(url);
+        }
+        else
+        {
+            loadAndRunScript(modEntry.querySelector(".modEntryURLInput").value);
+            saveData();
+        }
+    };
 
 
     //Load options
@@ -131,6 +184,15 @@ const sleep = timeout => {
         $("#ladderAscendedVolume").val(lynnsQOLData.ladderAscendedVolume);
         $("#enableGroupMentions").prop("checked", lynnsQOLData.enableGroupMentions);
         $("#hidePromotedUsers").prop("checked", lynnsQOLData.hidePromotedUsers);
+        //load mods
+        if (lynnsQOLData.modList != null) {
+            for (var i = 0; i < lynnsQOLData.modList.length; i++) {
+                addNewModScript(lynnsQOLData.modList[i].url);
+                $(modLoaderContainer).find(".modEntry:last-child .modEntryURLInput").val(lynnsQOLData.modList[i].url);
+                $(modLoaderContainer).find(".modEntry:last-child .modEntryTitleInput").val(lynnsQOLData.modList[i].name);
+
+            }
+        }
 
         mentionSound.volume = parseInt(mentionVolume.value)/100;
         ladderUnlockedSound.volume = parseInt(ladderUnlockedVolume.value)/100;
@@ -147,7 +209,7 @@ const sleep = timeout => {
         clientData.ladderPadding = qolOptions.expandedLadder.size / 2;
     }
 
-    function saveData() {
+    window.saveData = function() {
         //if we want to save data
         if ($("#saveData").prop("checked")) {
             var saveData = {
@@ -167,6 +229,18 @@ const sleep = timeout => {
                 mentionVolume: $("#mentionVolume").val(),
                 enableGroupMentions: $("#enableGroupMentions").prop("checked"),
                 hidePromotedUsers: $("#hidePromotedUsers").prop("checked"),
+
+                //now save the mods as an array
+                modList: (()=>{
+                    var modList = [];
+                    $(".modEntry").each((i, modEntry)=>{
+                        modList.push({
+                            name: modEntry.querySelector(".modEntryTitleInput").value,
+                            url: modEntry.querySelector(".modEntryURLInput").value
+                        });
+                    });
+                    return modList;
+                })(),
 
 
                 rowsInput: $("#rowsInput").val(),
