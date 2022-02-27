@@ -1307,7 +1307,8 @@ const sleep = timeout => {
                 });
                 //Color in the button so the user is made aware of it.
                 //in color darkgoldenrod
-                document.querySelector("button.navbar-toggler:nth-child(4)").style.backgroundColor = "darkgoldenrod";
+                document.querySelector("button.navbar-toggler:nth-child(4)").style.backgroundColor = "slateblue";
+                document.querySelector("button.navbar-toggler:nth-child(4)").style.color = "whitesmoke";
             }
             else
             {
