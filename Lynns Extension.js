@@ -115,7 +115,7 @@ const sleep = timeout => {
         window.open("https://github.com/LynnCinnamon/Fairgame-Lynns-QOL-Extensions/issues/new");
     });
 
-    window.addNewModScript = (url = "") => {
+    window.addNewModScript = (url = "", enabled = false) => {
         //check if localStorage has a key called "modLoaderRiskAccepted" and if it is true
         if (!(localStorage.getItem("modLoaderRiskAccepted") == "true")) {
             //if it is not true, show the mod loader risk warning
@@ -142,6 +142,9 @@ const sleep = timeout => {
             <div class="modEntrySave" style="display: inline-block">
                 <button class="btn btn-primary shadow-none" onclick="saveData()">Save</button>
             </div>
+            <div class="modEntrySave" style="display: inline-block">
+                <input type="checkbox" class="modEntryEnabled" ${enabled?'checked':''}> Enabled</input>
+            </div>
         `;
         $(modLoaderContainer).append(modEntry);
         modEntry.querySelector(".modEntryURLInput").value = addScriptURLTextField.value;
@@ -153,61 +156,19 @@ const sleep = timeout => {
         });
 
         //now load the script
-        if(url)
+        if(url && enabled)
         {
             loadAndRunScript(url);
         }
         else
         {
-            loadAndRunScript(modEntry.querySelector(".modEntryURLInput").value);
-            saveData();
+            if(enabled)
+            {
+                loadAndRunScript(modEntry.querySelector(".modEntryURLInput").value);
+            }
+            window.saveData();
         }
     };
-
-
-    //Load options
-    if (localStorage.getItem("lynnsQOLData") != null) {
-        window.lynnsQOLData = JSON.parse(localStorage.getItem("lynnsQOLData"));
-        $("#saveData").prop("checked", lynnsQOLData.saveData);
-        $("#mentionSounds").prop("checked", lynnsQOLData.mentionSound);
-        $("#mentionVolume").val(lynnsQOLData.mentionVolume);
-        $("#highlightMentions").prop("checked", lynnsQOLData.mentionHighlight);
-        $("#invertChad").prop("checked", lynnsQOLData.invertChad);
-        $("#scrollableChad").prop("checked", lynnsQOLData.scrollableChad);
-        $("#chadMessageCount").val(lynnsQOLData.chadMessageCount);
-        $("#useLynnsLadderCode").prop("checked", lynnsQOLData.useLynnsLadderCode);
-        $("#showUserIDInLadder").prop("checked", lynnsQOLData.showUserIDInLadder);
-        $("#stickFirstRowToTop").prop("checked", lynnsQOLData.stickFirstRowToTop);
-        $("#ladderUnlockedSound").prop("checked", lynnsQOLData.ladderUnlockedSound);
-        $("#ladderUnlockedVolume").val(lynnsQOLData.ladderUnlockedVolume);
-        $("#ladderAscendedSound").prop("checked", lynnsQOLData.ladderAscendedSound);
-        $("#ladderAscendedVolume").val(lynnsQOLData.ladderAscendedVolume);
-        $("#enableGroupMentions").prop("checked", lynnsQOLData.enableGroupMentions);
-        $("#hidePromotedUsers").prop("checked", lynnsQOLData.hidePromotedUsers);
-        //load mods
-        if (lynnsQOLData.modList != null) {
-            for (var i = 0; i < lynnsQOLData.modList.length; i++) {
-                addNewModScript(lynnsQOLData.modList[i].url);
-                $(modLoaderContainer).find(".modEntry:last-child .modEntryURLInput").val(lynnsQOLData.modList[i].url);
-                $(modLoaderContainer).find(".modEntry:last-child .modEntryTitleInput").val(lynnsQOLData.modList[i].name);
-
-            }
-        }
-
-        mentionSound.volume = parseInt(mentionVolume.value)/100;
-        ladderUnlockedSound.volume = parseInt(ladderUnlockedVolume.value)/100;
-        ladderAscendedSound.volume = parseInt(ladderAscendedVolume.value)/100;
-
-        $("#rowsInput").val(lynnsQOLData.rowsInput);
-        $("#scrollableLadder").prop("checked", lynnsQOLData.scrollableLadder);
-        $("#expandedLadder").prop("checked", lynnsQOLData.expandedLadder);
-        $("#scrollablePage").prop("checked", lynnsQOLData.scrollablePage);
-        $("#promotePoints").prop("checked", lynnsQOLData.promotePoints);
-
-        expandLadder(lynnsQOLData.scrollableLadder);
-        qolOptions.expandedLadder.size = parseInt(lynnsQOLData.rowsInput) > 10 ? parseInt(lynnsQOLData.rowsInput) : 10;
-        clientData.ladderPadding = qolOptions.expandedLadder.size / 2;
-    }
 
     window.saveData = function() {
         //if we want to save data
@@ -236,7 +197,8 @@ const sleep = timeout => {
                     $(".modEntry").each((i, modEntry)=>{
                         modList.push({
                             name: modEntry.querySelector(".modEntryTitleInput").value,
-                            url: modEntry.querySelector(".modEntryURLInput").value
+                            url: modEntry.querySelector(".modEntryURLInput").value,
+                            enabled: modEntry.querySelector(".modEntryEnabled").checked
                         });
                     });
                     return modList;
@@ -252,6 +214,51 @@ const sleep = timeout => {
             localStorage.setItem("lynnsQOLData", JSON.stringify(saveData));
         }
     }
+
+    //Load options
+    if (localStorage.getItem("lynnsQOLData") != null) {
+        window.lynnsQOLData = JSON.parse(localStorage.getItem("lynnsQOLData"));
+        $("#saveData").prop("checked", lynnsQOLData.saveData);
+        $("#mentionSounds").prop("checked", lynnsQOLData.mentionSound);
+        $("#mentionVolume").val(lynnsQOLData.mentionVolume);
+        $("#highlightMentions").prop("checked", lynnsQOLData.mentionHighlight);
+        $("#invertChad").prop("checked", lynnsQOLData.invertChad);
+        $("#scrollableChad").prop("checked", lynnsQOLData.scrollableChad);
+        $("#chadMessageCount").val(lynnsQOLData.chadMessageCount);
+        $("#useLynnsLadderCode").prop("checked", lynnsQOLData.useLynnsLadderCode);
+        $("#showUserIDInLadder").prop("checked", lynnsQOLData.showUserIDInLadder);
+        $("#stickFirstRowToTop").prop("checked", lynnsQOLData.stickFirstRowToTop);
+        $("#ladderUnlockedSound").prop("checked", lynnsQOLData.ladderUnlockedSound);
+        $("#ladderUnlockedVolume").val(lynnsQOLData.ladderUnlockedVolume);
+        $("#ladderAscendedSound").prop("checked", lynnsQOLData.ladderAscendedSound);
+        $("#ladderAscendedVolume").val(lynnsQOLData.ladderAscendedVolume);
+        $("#enableGroupMentions").prop("checked", lynnsQOLData.enableGroupMentions);
+        $("#hidePromotedUsers").prop("checked", lynnsQOLData.hidePromotedUsers);
+        //load mods
+        if (lynnsQOLData.modList != null) {
+            for (var i = 0; i < lynnsQOLData.modList.length; i++) {
+                addNewModScript(lynnsQOLData.modList[i].url, lynnsQOLData.modList[i].enabled);
+                $(modLoaderContainer).find(".modEntry:last-child .modEntryURLInput").val(lynnsQOLData.modList[i].url);
+                $(modLoaderContainer).find(".modEntry:last-child .modEntryTitleInput").val(lynnsQOLData.modList[i].name);
+            }
+        }
+
+        mentionSound.volume = parseInt(mentionVolume.value)/100;
+        ladderUnlockedSound.volume = parseInt(ladderUnlockedVolume.value)/100;
+        ladderAscendedSound.volume = parseInt(ladderAscendedVolume.value)/100;
+
+        $("#rowsInput").val(lynnsQOLData.rowsInput);
+        $("#scrollableLadder").prop("checked", lynnsQOLData.scrollableLadder);
+        $("#expandedLadder").prop("checked", lynnsQOLData.expandedLadder);
+        $("#scrollablePage").prop("checked", lynnsQOLData.scrollablePage);
+        $("#promotePoints").prop("checked", lynnsQOLData.promotePoints);
+
+        expandLadder(lynnsQOLData.scrollableLadder);
+        qolOptions.expandedLadder.size = parseInt(lynnsQOLData.rowsInput) > 10 ? parseInt(lynnsQOLData.rowsInput) : 10;
+        clientData.ladderPadding = qolOptions.expandedLadder.size / 2;
+    }
+
+
 
     subscribeToDomNode("invertChad", saveData);
     subscribeToDomNode("scrollableChad", saveData);
@@ -1306,7 +1313,6 @@ const sleep = timeout => {
                     window.location.reload();
                 });
                 //Color in the button so the user is made aware of it.
-                //in color darkgoldenrod
                 document.querySelector("button.navbar-toggler:nth-child(4)").style.backgroundColor = "slateblue";
                 document.querySelector("button.navbar-toggler:nth-child(4)").style.color = "whitesmoke";
             }
