@@ -1183,6 +1183,13 @@ const sleep = timeout => {
         }
     });
 
+    function htmlDecode(input){
+        var e = document.createElement('textarea');
+        e.innerHTML = input;
+        // handle case of empty input
+        return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+      }
+
     //implement better mentioning system
     document.getElementById("messageInput").addEventListener("keyup", function(e) {
 
@@ -1246,7 +1253,7 @@ const sleep = timeout => {
             option.style.paddingLeft = "5px";
 
             option.addEventListener("click", function() {
-                document.getElementById("messageInput").value = text.substring(0, lastAt) + '@' + possibleMentions[i] + " ";
+                document.getElementById("messageInput").value = text.substring(0, lastAt) + '@' +  htmlDecode(possibleMentions[i]) + " ";
                 dropdown.remove();
             });
 
