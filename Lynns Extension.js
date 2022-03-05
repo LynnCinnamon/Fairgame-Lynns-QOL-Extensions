@@ -485,10 +485,32 @@ const sleep = timeout => {
         }
     };
 
+    window.recheckLadderUnlocked = function (ladderNum) {
+        console.log("Rechecking Ladder Unlocked");
+        window.ladderUnlocked = (ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) >= 0 ||
+                                ladderNum != identityData.highestCurrentLadder);
+        if(ladderData.firstRanker.rank === 0)
+        {
+            window.ladderUnlocked = true;
+            setTimeout(() => {
+                recheckLadderUnlocked(ladderNum);
+            }, 1);
+        }
+    }
+
+    window.ladderUnlocked = true;
     let oldInitLadder = initLadder;
     window.initLadder = function(ladderNum) {
         oldInitLadder(ladderNum);
-        window.ladderUnlocked = ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) >= 0 || ladderNum < identityData.highestCurrentLadder;
+        window.ladderUnlocked = (ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) >= 0 ||
+                                ladderNum != identityData.highestCurrentLadder);
+        if(ladderData.firstRanker.rank === 0)
+        {
+            window.ladderUnlocked = true;
+            setTimeout(() => {
+                recheckLadderUnlocked(ladderNum);
+            }, 1);
+        }
     }
 
     window.changeLadder = function(ladderNum) {
@@ -498,7 +520,6 @@ const sleep = timeout => {
             ladderSubscription = stompClient.subscribe('/topic/ladder/' + ladderNum,
             (message) => handleLadderUpdates(JSON.parse(message.body)), {uuid: getCookie("_uuid")});
             initLadder(ladderNum);
-            window.ladderUnlocked = ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) >= 0;
         }
     }
 
