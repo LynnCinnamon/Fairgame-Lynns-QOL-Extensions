@@ -724,7 +724,7 @@ window.getColor = function(str) {
                     ColLookup.hasOwnProperty(chatData.messages[i].username.charCodeAt(1)) &&
                     ColLookup.hasOwnProperty(chatData.messages[i].username.charCodeAt(2)))
                 {
-                    chatData.messages[i].username = `<span style="color: rgb(${40 + 40 * ColLookup[chatData.messages[i].username.charCodeAt(0)]}, ${40 + 40 * ColLookup[chatData.messages[i].username.charCodeAt(1)]}, ${40 + 40 * ColLookup[chatData.messages[i].username.charCodeAt(2)]})">${chatData.messages[i].username}</span>`;
+                    chatData.messages[i].username = `<span style="color: rgb(${40 + 40 * ColLookup[chatData.messages[i].username.charCodeAt(0)]}, ${40 + 40 * ColLookup[chatData.messages[i].username.charCodeAt(1)]}, ${40 + 40 * ColLookup[chatData.messages[i].username.charCodeAt(2)]})">${stripColor(chatData.messages[i].username)}</span>`;
                 }
 
 
