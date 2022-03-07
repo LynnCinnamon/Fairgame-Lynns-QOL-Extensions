@@ -120,6 +120,44 @@ window.getColor = function(str) {
         mentionSound.play();
     });
 
+    addNewSection("Chad Color");
+    addOption(CheckboxOption("Enable Chad Color", "enableChadColor"));
+    addOption(SliderOption("R", "ownColR", 1, 5, 1, 1));
+    addOption(SliderOption("G", "ownColG", 1, 5, 1, 1));
+    addOption(SliderOption("B", "ownColB", 1, 5, 1, 1));
+    //add a square div to display the color
+    var ownColDiv = document.createElement("div");
+    ownColDiv.style.width = "100px";
+    ownColDiv.style.height = "100px";
+    ownColDiv.style.backgroundColor = "rgb(" + (40 + 40 * ownColR.value) + "," + (40 + 40 * ownColG.value) + "," + (40 + 40 * ownColB.value) + ")";
+    ownColDiv.style.border = "1px solid black";
+    ownColDiv.style.margin = "0 auto";
+    ownColDiv.style.display = "block";
+    addOption(ownColDiv);
+
+    //subscribe to the options for R, G, B
+    subscribeToDomNode("ownColR", function() {
+        ownColDiv.style.backgroundColor = "rgb(" + (40 + 40 * ownColR.value) + "," + (40 + 40 * ownColG.value) + "," + (40 + 40 * ownColB.value) + ")";
+    });
+    subscribeToDomNode("ownColG", function() {
+        ownColDiv.style.backgroundColor = "rgb(" + (40 + 40 * ownColR.value) + "," + (40 + 40 * ownColG.value) + "," + (40 + 40 * ownColB.value) + ")";
+    });
+    subscribeToDomNode("ownColB", function() {
+        ownColDiv.style.backgroundColor = "rgb(" + (40 + 40 * ownColR.value) + "," + (40 + 40 * ownColG.value) + "," + (40 + 40 * ownColB.value) + ")";
+    });
+
+    addOption(ButtonOption("Set own color", "setOwnColor"));
+    $(setOwnColor).click(()=>{
+        var newName = String.fromCharCode(ColLookup[ownColR.value]) + String.fromCharCode(ColLookup[ownColG.value]) + String.fromCharCode(ColLookup[ownColB.value]) + stripColor(ladderData.yourRanker.username);
+        if(newUsername.length > 32 && confirm("Your new username is too long because it contains 3 characters for the color. It will be truncated to 29 characters. Continue?"))
+        {
+            stompClient.send("/app/account/name", {}, JSON.stringify({
+                'uuid': identityData.uuid,
+                'content': newName
+            }))
+        }
+    });
+
     addNewSection("Lynn's Ladder tweaks");
     addOption(CheckboxOption("Use Lynns Ladder Code", "useLynnsLadderCode"));
     addOption(CheckboxOption("Show User ID", "showUserIDInLadder"));
@@ -231,6 +269,7 @@ window.getColor = function(str) {
                 mentionVolume: $("#mentionVolume").val(),
                 enableGroupMentions: $("#enableGroupMentions").prop("checked"),
                 hidePromotedUsers: $("#hidePromotedUsers").prop("checked"),
+                enableChadColor: $("#enableChadColor").prop("checked"),
 
                 //now save the mods as an array
                 modList: (()=>{
@@ -275,6 +314,7 @@ window.getColor = function(str) {
         $("#ladderAscendedVolume").val(lynnsQOLData.ladderAscendedVolume);
         $("#enableGroupMentions").prop("checked", lynnsQOLData.enableGroupMentions);
         $("#hidePromotedUsers").prop("checked", lynnsQOLData.hidePromotedUsers);
+        $("#enableChadColor").prop("checked", lynnsQOLData.enableChadColor || lynnsQOLData.enableChadColor == undefined);
         //load mods
         if (lynnsQOLData.modList != null) {
             for (var i = 0; i < lynnsQOLData.modList.length; i++) {
@@ -314,6 +354,7 @@ window.getColor = function(str) {
     subscribeToDomNode("stickFirstRowToTop", saveData);
     subscribeToDomNode("enableGroupMentions", saveData);
     subscribeToDomNode("hidePromotedUsers", saveData);
+    subscribeToDomNode("enableChadColor", saveData);
 
     showOrHideGroupSub = ()=>{
         var subscribeButton = $("#mentionSubscribeButton")[0];
@@ -668,7 +709,8 @@ window.getColor = function(str) {
                 }
 
                 //If the user has a color, make the username this color
-                if( ColLookup.hasOwnProperty(chatData.messages[i].username.charCodeAt(0)) &&
+                if( $("#enableChadColor").prop("checked") &&
+                    ColLookup.hasOwnProperty(chatData.messages[i].username.charCodeAt(0)) &&
                     ColLookup.hasOwnProperty(chatData.messages[i].username.charCodeAt(1)) &&
                     ColLookup.hasOwnProperty(chatData.messages[i].username.charCodeAt(2)))
                 {
@@ -1297,24 +1339,9 @@ window.getColor = function(str) {
         var possibleMentions = [];
         for(let i = 0; i < ladderData.rankers.length; i++)
         {
-            if((ladderData.rankers[i].username + '#' + ladderData.rankers[i].accountId).toLowerCase().startsWith(possibleMentionLower))
+            if((stripColor(ladderData.rankers[i].username) + '#' + ladderData.rankers[i].accountId).toLowerCase().startsWith(possibleMentionLower))
             {
-                possibleMentions.push((ladderData.rankers[i].username + '#' + ladderData.rankers[i].accountId));
-            }
-            else
-            {
-                var usrName = ladderData.rankers[i].username;
-                //check if the first 3 characters of the username are 3 keys in ColLookup
-                var first = usrName.charCodeAt(0);
-                var second = usrName.charCodeAt(1);
-                var third = usrName.charCodeAt(2);
-                if(first in ColLookup && second in ColLookup && third in ColLookup)
-                {
-                    if((ladderData.rankers[i].username.substring(3) + '#' + ladderData.rankers[i].accountId).toLowerCase().startsWith(possibleMentionLower))
-                    {
-                        possibleMentions.push((ladderData.rankers[i].username.substring(3) + '#' + ladderData.rankers[i].accountId));
-                    }
-                }
+                possibleMentions.push((stripColor(ladderData.rankers[i].username) + '#' + ladderData.rankers[i].accountId));
             }
         }
 
