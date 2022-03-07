@@ -39,16 +39,16 @@ const sleep = timeout => {
 };
 
 const ColLookup = {
-    129 : 1,
-    141 : 2,
-    143 : 3,
-    144 : 4,
-    157 : 5,
-    1   : 129,
-    2   : 141,
-    3   : 143,
-    4   : 144,
-    5   : 157
+    0 : 1,
+    10 : 2,
+    13 : 3,
+    32 : 4,
+    127 : 5,
+    1: 0,
+    2: 10,
+    3: 13,
+    4: 32,
+    5: 127
 };
 
 window.stripColor = function(str) {
@@ -719,12 +719,13 @@ window.getColor = function(str) {
                 }
 
                 //If the user has a color, make the username this color
-                if( $("#enableChadColor").prop("checked") &&
-                    ColLookup.hasOwnProperty(chatData.messages[i].username.charCodeAt(0)) &&
-                    ColLookup.hasOwnProperty(chatData.messages[i].username.charCodeAt(1)) &&
-                    ColLookup.hasOwnProperty(chatData.messages[i].username.charCodeAt(2)))
+                if( $("#enableChadColor").prop("checked"))
                 {
-                    chatData.messages[i].username = `<span style="color: rgb(${40 + 40 * ColLookup[chatData.messages[i].username.charCodeAt(0)]}, ${40 + 40 * ColLookup[chatData.messages[i].username.charCodeAt(1)]}, ${40 + 40 * ColLookup[chatData.messages[i].username.charCodeAt(2)]})">${stripColor(chatData.messages[i].username)}</span>`;
+                    var colData = getColor(chatData.messages[i].username)
+                    if(colData[0] != 0)
+                    {
+                        chatData.messages[i].username = `<span style="color: rgb(${40 + 40 * colData[0]}, ${40 + 40 * colData[1]}, ${40 + 40 * colData[2]})">${stripColor(chatData.messages[i].username)}</span>`;
+                    }
                 }
 
 
