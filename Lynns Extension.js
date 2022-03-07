@@ -53,21 +53,21 @@ const ColLookup = {
 
 window.stripColor = function(str) {
 
-    var first = str.charCodeAt(0);
-    var second = str.charCodeAt(1);
-    var third = str.charCodeAt(2);
+    var first = str.charCodeAt(1);
+    var second = str.charCodeAt(2);
+    var third = str.charCodeAt(3);
     if(first in ColLookup && second in ColLookup && third in ColLookup)
     {
-        str = str.substring(3);
+        str = str.substring(4);
     }
     return str;
 };
 
 window.getColor = function(str) {
 
-    var first = str.charCodeAt(0);
-    var second = str.charCodeAt(1);
-    var third = str.charCodeAt(2);
+    var first = str.charCodeAt(1);
+    var second = str.charCodeAt(2);
+    var third = str.charCodeAt(3);
     if(first in ColLookup && second in ColLookup && third in ColLookup)
     {
         return [ColLookup[first], ColLookup[second], ColLookup[third]];
@@ -148,8 +148,8 @@ window.getColor = function(str) {
 
     addOption(ButtonOption("Set own color", "setOwnColor"));
     $(setOwnColor).click(()=>{
-        var newName = String.fromCharCode(ColLookup[ownColR.value]) + String.fromCharCode(ColLookup[ownColG.value]) + String.fromCharCode(ColLookup[ownColB.value]) + stripColor(ladderData.yourRanker.username);
-        if(newName.length <= 32 || confirm("Your new username is too long because it contains 3 characters for the color. It will be truncated to 29 characters. Continue?"))
+        var newName = String.fromCharCode(ColLookup[5]) + String.fromCharCode(ColLookup[ownColR.value]) + String.fromCharCode(ColLookup[ownColG.value]) + String.fromCharCode(ColLookup[ownColB.value]) + stripColor(ladderData.yourRanker.username);
+        if(newName.length <= 32 || confirm("Your new username is too long because it contains 4 characters for the color. It will be truncated to 28 characters. Continue?"))
         {
             stompClient.send("/app/account/name", {}, JSON.stringify({
                 'uuid': identityData.uuid,
