@@ -681,7 +681,17 @@ window.getColor = function(str) {
     window.subscribedMentions = [];
     window.updateChat = function () {
 
-
+        for (var i = 0; i < chatData.messages.length; i++) {
+            //If the user has a color, make the username this color
+            if( $("#enableChadColor").prop("checked"))
+            {
+                var colData = getColor(chatData.messages[i].username)
+                if(colData[0] != 0)
+                {
+                    chatData.messages[i].username = `<span style="color: rgb(${40 + 40 * colData[0]}, ${40 + 40 * colData[1]}, ${40 + 40 * colData[2]})">${stripColor(chatData.messages[i].username)}</span>`;
+                }
+            }
+        }
         //go through the chat messages and check if they contain a mention of the user
         if (ladderData.yourRanker.username != "") {
 
@@ -734,17 +744,6 @@ window.getColor = function(str) {
                     chatData.messages[i].message = chatData.messages[i].message.replaceAll("#C" + number, "<a style=\"cursor: pointer; color: blue\" onclick='changeChatRoom(" + number + ")'>#C" + number + "</a>");
                 }
 
-                //If the user has a color, make the username this color
-                if( $("#enableChadColor").prop("checked"))
-                {
-                    var colData = getColor(chatData.messages[i].username)
-                    if(colData[0] != 0)
-                    {
-                        chatData.messages[i].username = `<span style="color: rgb(${40 + 40 * colData[0]}, ${40 + 40 * colData[1]}, ${40 + 40 * colData[2]})">${stripColor(chatData.messages[i].username)}</span>`;
-                    }
-                }
-
-
                 //if the message was already highlighted, but the user no longer wishes to see it highlighted, then unhighlight it
                 else if (chatData.messages[i].highlighted == true &&
                     !$("#highlightMentions").is(":checked")) {
@@ -759,6 +758,8 @@ window.getColor = function(str) {
                 }
             }
         }
+
+
 
         //copy the chat data
         var chatDataCopy = JSON.parse(JSON.stringify(chatData));
