@@ -148,6 +148,14 @@ window.getColor = function(str) {
 
     addOption(ButtonOption("Set own color", "setOwnColor"));
     $(setOwnColor).click(()=>{
+        //check if lastColorChange is not at least 5 minutes ago
+        if(lastColorChange + 300000 > Date.now())
+        {
+            alert(`You can only change your color every 5 minutes.\nYou can change it again in ${Math.floor((lastColorChange + 300000 - Date.now())/1000)} seconds.`);
+            return;
+        }
+        //set lastColorChange to now
+        lastColorChange = Date.now();
         var newName = String.fromCharCode(ColLookup[5]) + String.fromCharCode(ColLookup[ownColR.value]) + String.fromCharCode(ColLookup[ownColG.value]) + String.fromCharCode(ColLookup[ownColB.value]) + stripColor(ladderData.yourRanker.username);
         if(newName.length <= 32 || confirm("Your new username is too long because it contains 4 characters for the color. It will be truncated to 28 characters. Continue?"))
         {
@@ -160,6 +168,14 @@ window.getColor = function(str) {
     setOwnColor.parentElement.style.display = "inline-block";
     addOption(ButtonOption("Remove own color", "remOwnColor"));
     $(remOwnColor).click(()=>{
+        //check if lastColorChange is not at least 5 minutes ago
+        if(lastColorChange + 300000 > Date.now())
+        {
+            alert(`You can only change your color every 5 minutes.\nYou can change it again in ${Math.floor((lastColorChange + 300000 - Date.now())/1000)} seconds.`);
+            return;
+        }
+        //set lastColorChange to now
+        lastColorChange = Date.now();
         var newName = stripColor(ladderData.yourRanker.username);
         stompClient.send("/app/account/name", {}, JSON.stringify({
             'uuid': identityData.uuid,
@@ -1466,4 +1482,6 @@ window.getColor = function(str) {
             "Base",
         ];
     }
+    //save current timestamp
+    window.lastColorChange = Date.now();
 })();
