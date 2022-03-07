@@ -149,7 +149,7 @@ window.getColor = function(str) {
     addOption(ButtonOption("Set own color", "setOwnColor"));
     $(setOwnColor).click(()=>{
         var newName = String.fromCharCode(ColLookup[ownColR.value]) + String.fromCharCode(ColLookup[ownColG.value]) + String.fromCharCode(ColLookup[ownColB.value]) + stripColor(ladderData.yourRanker.username);
-        if(newUsername.length > 32 && confirm("Your new username is too long because it contains 3 characters for the color. It will be truncated to 29 characters. Continue?"))
+        if(newName.length <= 32 || confirm("Your new username is too long because it contains 3 characters for the color. It will be truncated to 29 characters. Continue?"))
         {
             stompClient.send("/app/account/name", {}, JSON.stringify({
                 'uuid': identityData.uuid,
@@ -157,6 +157,16 @@ window.getColor = function(str) {
             }))
         }
     });
+    setOwnColor.parentElement.style.display = "inline-block";
+    addOption(ButtonOption("Remove own color", "remOwnColor"));
+    $(remOwnColor).click(()=>{
+        var newName = stripColor(ladderData.yourRanker.username);
+        stompClient.send("/app/account/name", {}, JSON.stringify({
+            'uuid': identityData.uuid,
+            'content': newName
+        }))
+    });
+    remOwnColor.parentElement.style.display = "inline-block";
 
     addNewSection("Lynn's Ladder tweaks");
     addOption(CheckboxOption("Use Lynns Ladder Code", "useLynnsLadderCode"));
