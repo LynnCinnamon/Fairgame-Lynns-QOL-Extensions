@@ -24,6 +24,9 @@
 // - Top vinegar loss
 // - Follow person
 
+//jshint esversion: 9
+//jshint -W033
+
 
 if (typeof unsafeWindow !== 'undefined') {
     window = unsafeWindow;
@@ -34,6 +37,44 @@ const sleep = timeout => {
         setTimeout(resolve, timeout);
     });
 };
+
+const ColLookup = {
+    129 : 1,
+    141 : 2,
+    143 : 3,
+    144 : 4,
+    157 : 5,
+    1   : 129,
+    2   : 141,
+    3   : 143,
+    4   : 144,
+    5   : 157
+};
+
+window.stripColor = function(str) {
+
+    var first = str.charCodeAt(0);
+    var second = str.charCodeAt(1);
+    var third = str.charCodeAt(2);
+    if(first in ColLookup && second in ColLookup && third in ColLookup)
+    {
+        str = str.substring(3);
+    }
+    return str;
+};
+
+window.getColor = function(str) {
+
+    var first = str.charCodeAt(0);
+    var second = str.charCodeAt(1);
+    var third = str.charCodeAt(2);
+    if(first in ColLookup && second in ColLookup && third in ColLookup)
+    {
+        return [ColLookup[first], ColLookup[second], ColLookup[third]];
+    }
+    return [0, 0, 0];
+};
+
 
 (async () => {
 
@@ -449,7 +490,7 @@ const sleep = timeout => {
     window.handleChatUpdates = function (message) {
         if (message) {
             if (ladderData.yourRanker.username != "") {
-                if (message.message.includes("@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId) &&
+                if (message.message.includes("@" + stripColor(ladderData.yourRanker.username) + '#' + ladderData.yourRanker.accountId) &&
                     $("#mentionSounds").is(":checked")) {
                     mentionSound.play();
                 }
@@ -556,6 +597,7 @@ const sleep = timeout => {
     window.mention = function(name)
     {
         name = name.text
+        name = stripColor(name);
         var messageBox = document.getElementById("messageInput");
         if(messageBox.value.length > 0)
         {
@@ -577,7 +619,7 @@ const sleep = timeout => {
         if (ladderData.yourRanker.username != "") {
 
             for (var i = 0; i < chatData.messages.length; i++) {
-                if (chatData.messages[i].message.includes("@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId) &&
+                if (chatData.messages[i].message.includes("@" + stripColor(ladderData.yourRanker.username) + '#' + ladderData.yourRanker.accountId) &&
                     $("#highlightMentions").is(":checked")) {
                     //if they do, and this message was not touched yet, highlight the mention
                     if (chatData.messages[i].highlighted == false || chatData.messages[i].highlighted == undefined) {
@@ -586,7 +628,7 @@ const sleep = timeout => {
                         chatData.messages[i].message1 = chatData.messages[i].message;
 
                         //replace all occurences of the mention with a highlighted version
-                        chatData.messages[i].message = chatData.messages[i].message1.replaceAll("@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId, "<a style=\"color: red\">@" + ladderData.yourRanker.username + '#' + ladderData.yourRanker.accountId + "</a>");
+                        chatData.messages[i].message = chatData.messages[i].message1.replaceAll("@" + stripColor(ladderData.yourRanker.username) + '#' + ladderData.yourRanker.accountId, "<a style=\"color: red\">@" + stripColor(ladderData.yourRanker.username) + '#' + ladderData.yourRanker.accountId + "</a>");
                         chatData.messages[i].highlighted = true;
                     }
                 }
@@ -625,6 +667,15 @@ const sleep = timeout => {
                     chatData.messages[i].message = chatData.messages[i].message.replaceAll("#C" + number, "<a style=\"cursor: pointer; color: blue\" onclick='changeChatRoom(" + number + ")'>#C" + number + "</a>");
                 }
 
+                //If the user has a color, make the username this color
+                if( ColLookup.hasOwnProperty(chatData.messages[i].username.charCodeAt(0)) &&
+                    ColLookup.hasOwnProperty(chatData.messages[i].username.charCodeAt(1)) &&
+                    ColLookup.hasOwnProperty(chatData.messages[i].username.charCodeAt(2)))
+                {
+                    chatData.messages[i].username = `<span style="color: rgb(${40 + 40 * ColLookup[chatData.messages[i].username.charCodeAt(0)]}, ${40 + 40 * ColLookup[chatData.messages[i].username.charCodeAt(1)]}, ${40 + 40 * ColLookup[chatData.messages[i].username.charCodeAt(2)]})">${chatData.messages[i].username}</span>`;
+                }
+
+
                 //if the message was already highlighted, but the user no longer wishes to see it highlighted, then unhighlight it
                 else if (chatData.messages[i].highlighted == true &&
                     !$("#highlightMentions").is(":checked")) {
@@ -646,6 +697,7 @@ const sleep = timeout => {
             //reverse the chat data, because we want to display the newest messages on the bottom
             chatData.messages.reverse();
         }
+
         //update the chat
         oldUpdateChat();
         //restore the chat data
@@ -799,8 +851,7 @@ const sleep = timeout => {
 
         const pointsToFirst = ladderData.firstRanker.points.sub(ranker.points);
         const firstPowerDifference = ranker.power - (ladderData.firstRanker.growing ? ladderData.firstRanker.power : 0);
-        const pointsLeftPromote = infoData.pointsForPromote.mul(ladderData.currentLadder.number)
- - ranker.points;
+        const pointsLeftPromote = infoData.pointsForPromote.mul(ladderData.currentLadder.number) - ranker.points;
         let timeToFirst = "";
         let currentETA = 0;
         if (ladderData.firstRanker.points.lessThan(infoData.pointsForPromote.mul(ladderData.currentLadder.number)
@@ -1199,6 +1250,7 @@ const sleep = timeout => {
             }
             else
             {
+                e.preventDefault();
                 sendMessage();
             }
         }
@@ -1248,6 +1300,21 @@ const sleep = timeout => {
             if((ladderData.rankers[i].username + '#' + ladderData.rankers[i].accountId).toLowerCase().startsWith(possibleMentionLower))
             {
                 possibleMentions.push((ladderData.rankers[i].username + '#' + ladderData.rankers[i].accountId));
+            }
+            else
+            {
+                var usrName = ladderData.rankers[i].username;
+                //check if the first 3 characters of the username are 3 keys in ColLookup
+                var first = usrName.charCodeAt(0);
+                var second = usrName.charCodeAt(1);
+                var third = usrName.charCodeAt(2);
+                if(first in ColLookup && second in ColLookup && third in ColLookup)
+                {
+                    if((ladderData.rankers[i].username.substring(3) + '#' + ladderData.rankers[i].accountId).toLowerCase().startsWith(possibleMentionLower))
+                    {
+                        possibleMentions.push((ladderData.rankers[i].username.substring(3) + '#' + ladderData.rankers[i].accountId));
+                    }
+                }
             }
         }
 
