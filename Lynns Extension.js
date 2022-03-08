@@ -38,6 +38,12 @@ const sleep = timeout => {
     });
 };
 
+window.LynnsPrefix ='[FairGame/Lynn]:';
+const llog = (...args) => {
+    args.unshift(window.LynnsPrefix);
+    console.log(...args);
+};
+
 const ColLookup = {
     0 : 1,
     10 : 2,
