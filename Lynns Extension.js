@@ -106,7 +106,7 @@ window.getColor = function(str) {
             }
         } catch (e) {}
     }
-    console.log("[FairGame] Initializing Lynn's QOL");
+    llog("Initializing Lynn's QOL");
 
     //Options
     addNewSection("Lynn's Chad tweaks");
@@ -600,7 +600,7 @@ window.getColor = function(str) {
     };
 
     window.recheckLadderUnlocked = function (ladderNum) {
-        console.log("Rechecking Ladder Unlocked");
+        llog("Rechecking Ladder Unlocked");
         window.ladderUnlocked = (ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) >= 0 ||
                                 ladderNum != identityData.highestCurrentLadder);
         if(ladderData.firstRanker.rank === 0)
