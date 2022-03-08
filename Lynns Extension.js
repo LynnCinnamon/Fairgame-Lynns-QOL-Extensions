@@ -1512,3 +1512,30 @@ window.getColor = function(str) {
     //save current timestamp
     window.lastColorChange = Date.now();
 })();
+
+
+(async () => {
+    llog("waiting for stompClient to exist");
+    while(stompClient == null)
+    {
+        await sleep(10);
+    }
+    llog("waiting for stompClient to connect");
+    while(!stompClient.connected)
+    {
+        await sleep(10);
+    }
+    llog("waiting for stompClient to disconnect");
+    while(stompClient.connected)
+    {
+        await sleep(10);
+    }
+    llog("Currently disconnected [Lynns QOL]...");
+    llog("To reload without the QOL, reload the page.");
+    setTimeout(() => {
+        localStorage.setItem("autoLoadQOL", true);
+    }, 4000);
+    setTimeout(function() {
+        window.location.reload();
+    }, 5000);
+})()
