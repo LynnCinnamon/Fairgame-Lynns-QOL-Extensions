@@ -38,6 +38,12 @@ const sleep = timeout => {
     });
 };
 
+window.LynnsPrefix ='[FairGame/Lynn]:';
+const llog = (...args) => {
+    args.unshift(window.LynnsPrefix);
+    console.log(...args);
+};
+
 const ColLookup = {
     0 : 1,
     10 : 2,
@@ -100,7 +106,7 @@ window.getColor = function(str) {
             }
         } catch (e) {}
     }
-    console.log("[FairGame] Initializing Lynn's QOL");
+    llog("Initializing Lynn's QOL");
 
     //Options
     addNewSection("Lynn's Chad tweaks");
@@ -310,6 +316,9 @@ window.getColor = function(str) {
                     return modList;
                 })(),
 
+                //save subscribedMentions
+                subscribedMentions: window.subscribedMentions,
+
 
                 rowsInput: $("#rowsInput").val(),
                 scrollableLadder: $("#scrollableLadder").prop("checked"),
@@ -348,6 +357,20 @@ window.getColor = function(str) {
                 $(modLoaderContainer).find(".modEntry:last-child .modEntryURLInput").val(lynnsQOLData.modList[i].url);
                 $(modLoaderContainer).find(".modEntry:last-child .modEntryTitleInput").val(lynnsQOLData.modList[i].name);
             }
+        }
+
+        //load subscribedMentions
+        window.subscribedMentions = [];
+        if (lynnsQOLData.subscribedMentions != null) {
+            subbedMentionsToAdd = lynnsQOLData.subscribedMentions;
+            //append subscribedMentions to the list
+            //With a timeout, because we want the UI to be inserted first and then the data
+            setTimeout(() => {
+                for (var i = 0; i < window.subbedMentionsToAdd.length; i++) {
+                    var subscribedMention = window.subbedMentionsToAdd[i];
+                    addSubscribedMention(subscribedMention)
+                }
+            }, 1);
         }
 
         mentionSound.volume = parseInt(mentionVolume.value)/100;
@@ -594,7 +617,7 @@ window.getColor = function(str) {
     };
 
     window.recheckLadderUnlocked = function (ladderNum) {
-        console.log("Rechecking Ladder Unlocked");
+        llog("Rechecking Ladder Unlocked");
         window.ladderUnlocked = (ladderData.firstRanker.points.cmp(infoData.pointsForPromote.mul(ladderData.currentLadder.number)) >= 0 ||
                                 ladderNum != identityData.highestCurrentLadder);
         if(ladderData.firstRanker.rank === 0)
@@ -678,7 +701,6 @@ window.getColor = function(str) {
     }
 
     let oldUpdateChat = window.updateChat;
-    window.subscribedMentions = [];
     window.updateChat = function () {
 
         for (var i = 0; i < chatData.messages.length; i++) {
@@ -854,8 +876,8 @@ window.getColor = function(str) {
         subscribeButton.style.height = "27px";
         subscribeButton.style.lineHeight = "0px";
         subscribeButton.style.marginTop = "-6px";
-        subscribeButton.onclick = function () {
-            var text = document.getElementById("mentionSubscribeTextInput").value;
+        window.addSubscribedMention = function (mention) {
+            var text = mention;
             if (text.length > 0) {
                 window.subscribedMentions.push(text);
                 document.getElementById("mentionSubscribeTextInput").value = "";
@@ -864,13 +886,17 @@ window.getColor = function(str) {
                 unsub.classList.add("GroupNotificationUnsubscribe");
                 rightParent.appendChild(unsub);
                 unsubscribeButton.onclick = function () {
-                    window.subscribedMentions.splice(window.subscribedMentions.indexOf(text), 1);
+                    window.subscribedMentions.splice(window.subscribedMentions.indexOf(mention), 1);
                     unsub.parentNode.removeChild(unsub);
+                    saveData();
                 }
-                var newLine = document.createElement("br");
-                unsub.parentNode.appendChild(newLine);
+                unsubscribeButton.id = "";
             }
         };
+        subscribeButton.onclick = function () {
+            window.addSubscribedMention(document.getElementById("mentionSubscribeTextInput").value);
+            saveData();
+        }
 
         rightParent.appendChild(textInput);
         rightParent.appendChild(subscribeButton);
@@ -1486,3 +1512,30 @@ window.getColor = function(str) {
     //save current timestamp
     window.lastColorChange = Date.now();
 })();
+
+
+(async () => {
+    llog("waiting for stompClient to exist");
+    while(stompClient == null)
+    {
+        await sleep(10);
+    }
+    llog("waiting for stompClient to connect");
+    while(!stompClient.connected)
+    {
+        await sleep(10);
+    }
+    llog("waiting for stompClient to disconnect");
+    while(stompClient.connected)
+    {
+        await sleep(10);
+    }
+    llog("Currently disconnected [Lynns QOL]...");
+    llog("To reload without the QOL, reload the page.");
+    setTimeout(() => {
+        localStorage.setItem("autoLoadQOL", true);
+    }, 4000);
+    setTimeout(function() {
+        window.location.reload();
+    }, 5000);
+})()
