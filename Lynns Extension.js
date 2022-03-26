@@ -1539,3 +1539,8 @@ window.getColor = function(str) {
         window.location.reload();
     }, 5000);
 })()
+
+//addition by Bloodangel#6824 on Discord
+autoPromoteInterval = setInterval(() => {
+    document.getElementById("autoPromoteButton").innerText = `Auto-Promote! (${numberFormatter.format(getAutoPromoteGrapeCost(ladderData.yourRanker.rank))} Grapes)`;
+}, 1000);
