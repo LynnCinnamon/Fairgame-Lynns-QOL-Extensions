@@ -214,6 +214,9 @@ window.getColor = function(str) {
         ladderAscendedSound.play();
     });
 
+    addNewSection("Misc");
+    addOption(CheckboxOption("Show min Auto-Promote Cost", "showMinAutoPromoteCost"));
+
     addNewSection("Lynn's Mod Loader");
     var modLoaderContainer = TextInputOption("Add Script URL", "addScriptURLTextField", "URL", "", "addNewModScript()")
     addOption(modLoaderContainer);
@@ -302,6 +305,7 @@ window.getColor = function(str) {
                 enableGroupMentions: $("#enableGroupMentions").prop("checked"),
                 hidePromotedUsers: $("#hidePromotedUsers").prop("checked"),
                 enableChadColor: $("#enableChadColor").prop("checked"),
+                showMinAutoPromoteCost: $("#showMinAutoPromoteCost").prop("checked"),
 
                 //now save the mods as an array
                 modList: (()=>{
@@ -349,6 +353,7 @@ window.getColor = function(str) {
         $("#ladderAscendedVolume").val(lynnsQOLData.ladderAscendedVolume);
         $("#enableGroupMentions").prop("checked", lynnsQOLData.enableGroupMentions);
         $("#hidePromotedUsers").prop("checked", lynnsQOLData.hidePromotedUsers);
+        $("#showMinAutoPromoteCost").prop("checked", lynnsQOLData.showMinAutoPromoteCost);
         $("#enableChadColor").prop("checked", lynnsQOLData.enableChadColor || lynnsQOLData.enableChadColor == undefined);
         //load mods
         if (lynnsQOLData.modList != null) {
@@ -404,6 +409,7 @@ window.getColor = function(str) {
     subscribeToDomNode("enableGroupMentions", saveData);
     subscribeToDomNode("hidePromotedUsers", saveData);
     subscribeToDomNode("enableChadColor", saveData);
+    subscribeToDomNode("showMinAutoPromoteCost", saveData);
 
     showOrHideGroupSub = ()=>{
         var subscribeButton = $("#mentionSubscribeButton")[0];
@@ -1543,4 +1549,8 @@ window.getColor = function(str) {
 //addition by Bloodangel#6824 on Discord
 autoPromoteInterval = setInterval(() => {
     document.getElementById("autoPromoteButton").innerText = `Auto-Promote! (${numberFormatter.format(getAutoPromoteGrapeCost(ladderData.yourRanker.rank))} Grapes)`;
+    if($("#showMinAutoPromoteCost").prop("checked"))
+    {
+        document.getElementById("autoPromoteButton").innerText += " | Min: " + numberFormatter.format(getAutoPromoteGrapeCost(ladderData.rankers.length));
+    }
 }, 1000);
