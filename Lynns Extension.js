@@ -1547,10 +1547,33 @@ window.getColor = function(str) {
 })()
 
 //addition by Bloodangel#6824 on Discord
+const autoPromoteButton = document.getElementById("autoPromoteButton");
 autoPromoteInterval = setInterval(() => {
-    document.getElementById("autoPromoteButton").innerText = `Auto-Promote! (${numberFormatter.format(getAutoPromoteGrapeCost(ladderData.yourRanker.rank))} Grapes)`;
+    autoPromoteButton.innerText = `Auto-Promote! (${numberFormatter.format(getAutoPromoteGrapeCost(ladderData.yourRanker.rank))} Grapes)`;
     if($("#showMinAutoPromoteCost").prop("checked"))
     {
-        document.getElementById("autoPromoteButton").innerText += " | Min: " + numberFormatter.format(getAutoPromoteGrapeCost(ladderData.rankers.length));
+        autoPromoteButton.innerText += " | Min: " + numberFormatter.format(getAutoPromoteGrapeCost(ladderData.rankers.length));
+    }
+    if(ladderData.yourRanker.autoPromote)
+    {
+        autoPromoteButton.innerText += " | Bought";
     }
 }, 1000);
+
+document.body.addEventListener("keydown", function(event){
+    if(event.key == "F12"){
+        //Display a warning in the console about malicious code.
+        var msg = "" +
+        "██╗    ██╗ █████╗ ██████╗ ███╗   ██╗██╗\n"+
+        "██║    ██║██╔══██╗██╔══██╗████╗  ██║██║\n"+
+        "██║ █╗ ██║███████║██████╔╝██╔██╗ ██║██║\n"+
+        "██║███╗██║██╔══██║██╔══██╗██║╚██╗██║╚═╝\n"+
+        "╚███╔███╔╝██║  ██║██║  ██║██║ ╚████║██╗\n"+
+        " ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝\n\n"+
+        "Only use code in this console if you know what you're doing.\n"+
+        "If you're not sure, please don't use this console.\n"+
+        "If someone you dont trust gave you some code to just paste here. Dont.\n"+
+        "They might just try to steal your account!";
+        console.log(msg);
+    }
+});
