@@ -109,6 +109,12 @@ window.getColor = function(str) {
     llog("Initializing Lynn's QOL");
 
     //Options
+    addNewSection("Lynn's Title tweaks");
+    addOption(CheckboxOption("Show \"Fair Game\" in Title", "showGameNameInTitle", true));
+    addOption(CheckboxOption("Show Rank in Title", "showRankInTitle", true));
+    addOption(CheckboxOption("Show Power in Title", "showPowerInTitle", true));
+    addOption(CheckboxOption("Show Points in Title", "showPointsInTitle", true));
+
     addNewSection("Lynn's Chad tweaks");
     addOption(CheckboxOption("Invert Chad", "invertChad"));
     addOption(CheckboxOption("Scrollable Chad", "scrollableChad"));
@@ -1577,3 +1583,36 @@ document.body.addEventListener("keydown", function(event){
         console.log(msg);
     }
 });
+
+//Update title
+titleNumber = new numberformat.Formatter({
+    format: 'hybrid',
+    sigfigs: 3,
+    flavor: 'short',
+    minSuffix: 0,
+    maxSmall: 0
+});
+setInterval(function() {
+    var showRankInTitle = $("#showRankInTitle").prop("checked");
+    var showPowerInTitle = $("#showPowerInTitle").prop("checked");
+    var showPointsInTitle = $("#showPointsInTitle").prop("checked");
+    var showGameNameInTitle = $("#showGameNameInTitle").prop("checked");
+    var title = "";
+    if(showGameNameInTitle)
+    {
+        title += "Fair Game";
+    }
+    if(showRankInTitle)
+    {
+        title += ((title != "")?(" | "):"")+"#" + ladderData.yourRanker.rank;
+    }
+    if(showPowerInTitle)
+    {
+        title += ((title != "")?(" | "):"") + titleNumber.format(ladderData.yourRanker.power);
+    }
+    if(showPointsInTitle)
+    {
+        title += ((title != "")?(" | "):"") + titleNumber.format(ladderData.yourRanker.points);
+    }
+    document.title = title;
+}, 1000);
