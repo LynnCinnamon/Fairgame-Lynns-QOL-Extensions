@@ -598,7 +598,7 @@ window.getColor = function(str) {
                 }
                 if($("#enableGroupMentions").prop("checked"))
                 {
-                    window.subscribedMentions.forEach(mention => {
+                    window.subscribedMentions?.forEach(mention => {
                         if (message.message.includes("@" + mention)) {
                             mentionSound.play();
                         }
@@ -745,7 +745,7 @@ window.getColor = function(str) {
                 }
                 if($("#enableGroupMentions").prop("checked"))
                 {
-                    window.subscribedMentions.forEach(mention => {
+                    window.subscribedMentions?.forEach(mention => {
                         if (chatData.messages[i].message.includes("@" + mention) &&
                         $("#highlightMentions").is(":checked")) {
                             //if they do, and this message was not touched yet, highlight the mention
