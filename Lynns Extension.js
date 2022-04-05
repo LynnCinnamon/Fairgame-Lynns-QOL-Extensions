@@ -891,6 +891,8 @@ window.getColor = function(str) {
         window.addSubscribedMention = function (mention) {
             var text = mention;
             if (text.length > 0) {
+                if(window.subscribedMentions == undefined)
+                    window.subscribedMentions = [];
                 window.subscribedMentions.push(text);
                 document.getElementById("mentionSubscribeTextInput").value = "";
                 var unsub = ButtonOption("Unsubscribe from @" + text, "unsubscribeButton");
