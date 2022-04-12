@@ -1041,13 +1041,18 @@ window.getColor = function(str) {
 
         if($("#useLynnsLadderCode")[0].checked) {
             window.writeNewRow = window.lynnsWriteNewRow;
+            window.shortestETAToLadderEnd = 999999999;
+            oldUpdateLadder();
         }
         else {
+            const oldRankerNames = ladderData.rankers.map(r => Object.assign({}, r));
+            ladderData.rankers.map(r => r.username = stripColor(r.username));
             window.writeNewRow = window.originalWriteNewRow;
+            window.shortestETAToLadderEnd = 999999999;
+            oldUpdateLadder();
+            ladderData.rankers = oldRankerNames;
         }
-        window.shortestETAToLadderEnd = 999999999;
 
-        oldUpdateLadder();
 
         document.getElementById("shortestNr1ETA").innerHTML = (secondsToHms(window.shortestETAToLadderEnd));
 
