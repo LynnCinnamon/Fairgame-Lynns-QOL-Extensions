@@ -1008,7 +1008,7 @@ window.getColor = function(str) {
         if(!$("#showUserIDInLadder")[0].checked) {
             userIDSuper = "";
         }
-        row.insertCell(2).innerHTML = `<a onclick="window.idToFollow = ${ranker.accountId}">${ranker.username}${userIDSuper}</a>`;
+        row.insertCell(2).innerHTML = `<a onclick="window.idToFollow = ${ranker.accountId}">${stripColor(ranker.username)}${userIDSuper}</a>`;
         row.cells[2].style.overflow = "hidden";
         row.insertCell(3).innerHTML = `${multiPrice} ${numberFormatter.format(ranker.power)} ${ranker.growing ? ranker.rank != 1 ? "(+" + numberFormatter.format((ranker.rank - 1 + ranker.bias) * ranker.multiplier) + ")" : "" : "(Promoted)"}`;
         row.cells[3].classList.add('text-end');
